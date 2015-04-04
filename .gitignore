@@ -1,0 +1,19 @@
+# Ignore project files in the root
+/*.sln
+*.suo
+*.opensdf
+*.sdf
+/*.xcodeproj
+/Makefile
+/CMakeLists.txt
+
+/Intermediate/**
+/Binaries/**
+/Plugins/**/Binaries
+/Saved/**
+
+# Ignore unix backup files
+*~
+
+# Ignore Mac desktop services store files
+.DS_Store
