@@ -32,10 +32,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	FVector GunOffset;
 
-	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class ATheUltimateHeistProjectile> ProjectileClass;
-
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	class USoundBase* FireSound;
@@ -47,6 +43,7 @@ public:
 protected:
 	
 	/** Fires a projectile. */
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnFire();
 
 	/** Handles moving forward/backward */

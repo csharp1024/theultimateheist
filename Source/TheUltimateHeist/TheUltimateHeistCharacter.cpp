@@ -2,7 +2,6 @@
 
 #include "TheUltimateHeist.h"
 #include "TheUltimateHeistCharacter.h"
-#include "TheUltimateHeistProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "GameFramework/InputSettings.h"
 
@@ -69,42 +68,6 @@ void ATheUltimateHeistCharacter::SetupPlayerInputComponent(class UInputComponent
 	InputComponent->BindAxis("TurnRate", this, &ATheUltimateHeistCharacter::TurnAtRate);
 	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	InputComponent->BindAxis("LookUpRate", this, &ATheUltimateHeistCharacter::LookUpAtRate);
-}
-
-void ATheUltimateHeistCharacter::OnFire()
-{ 
-	// try and fire a projectile
-	if (ProjectileClass != NULL)
-	{
-		const FRotator SpawnRotation = GetControlRotation();
-		// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-		const FVector SpawnLocation = GetActorLocation() + SpawnRotation.RotateVector(GunOffset);
-
-		UWorld* const World = GetWorld();
-		if (World != NULL)
-		{
-			// spawn the projectile at the muzzle
-			World->SpawnActor<ATheUltimateHeistProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
-		}
-	}
-
-	// try and play the sound if specified
-	if (FireSound != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// try and play a firing animation if specified
-	if(FireAnimation != NULL)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if(AnimInstance != NULL)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
-	}
-
 }
 
 void ATheUltimateHeistCharacter::BeginTouch(const ETouchIndex::Type FingerIndex, const FVector Location)
