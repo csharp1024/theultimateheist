@@ -1,12 +1,13 @@
 // Copyright 1998-2015 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Character.h"
+#include "GenericTeamAgentInterface.h"
 #include "TheUltimateHeistCharacter.generated.h"
 
 class UInputComponent;
 
 UCLASS(config=Game)
-class ATheUltimateHeistCharacter : public ACharacter
+class ATheUltimateHeistCharacter : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -17,6 +18,7 @@ class ATheUltimateHeistCharacter : public ACharacter
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
+
 public:
 	ATheUltimateHeistCharacter(const FObjectInitializer& ObjectInitializer);
 
@@ -40,7 +42,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimMontage* FireAnimation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+		float Health;
+
+	UFUNCTION(BlueprintCallable, Category = Team)
+		void SetTeamId(uint8 Team);
+
+	/** IGenericTeamAgentInterface */
+	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
+
+	virtual FGenericTeamId GetGenericTeamId() const override;
+
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
+
 protected:
+
+	virtual void BeginPlay() override;
 	
 	/** Fires a projectile. */
 	UFUNCTION(BlueprintImplementableEvent)
@@ -76,6 +93,8 @@ protected:
 	void EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
 	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
 	TouchData	TouchItem;
+
+	FGenericTeamId TeamId;
 	
 protected:
 	// APawn interface

@@ -3,6 +3,8 @@
 #include "TheUltimateHeist.h"
 #include "TheUltimateHeistCharacter.h"
 #include "Animation/AnimInstance.h"
+#include "Perception/AIPerceptionSystem.h"
+#include "Perception/AISense_Sight.h"
 #include "GameFramework/InputSettings.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
@@ -171,4 +173,45 @@ bool ATheUltimateHeistCharacter::EnableTouchscreenMovement(class UInputComponent
 		InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ATheUltimateHeistCharacter::TouchUpdate);
 	}
 	return bResult;
+}
+
+void ATheUltimateHeistCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UE_LOG(TUHLog, Log, TEXT("Registering '%s' as stimuli source."), *this->GetName());
+	if (!UAIPerceptionSystem::RegisterPerceptionStimuliSource(GetWorld(), UAISense_Sight::StaticClass(), this))
+	{
+		UE_LOG(TUHLog, Warning, TEXT("'%s' failed to register perception stimuli."), *this->GetName());
+	}
+}
+
+void ATheUltimateHeistCharacter::SetTeamId(uint8 Team)
+{
+	this->SetGenericTeamId(FGenericTeamId(Team));
+}
+
+void ATheUltimateHeistCharacter::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	this->TeamId = TeamID;
+}
+
+FGenericTeamId ATheUltimateHeistCharacter::GetGenericTeamId() const
+{
+	return this->TeamId;
+}
+
+ETeamAttitude::Type ATheUltimateHeistCharacter::GetTeamAttitudeTowards(const AActor& Other) const
+{
+	auto OtherTeam = FGenericTeamId::GetTeamIdentifier(&Other);
+	if (OtherTeam == FGenericTeamId::NoTeam)
+	{
+		return ETeamAttitude::Neutral;
+	}
+	if (OtherTeam == TeamId)
+	{
+		return ETeamAttitude::Friendly;
+	}
+		
+	return ETeamAttitude::Hostile;
 }

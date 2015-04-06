@@ -4,4 +4,5 @@
 
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, TheUltimateHeist, "TheUltimateHeist" );
+DEFINE_LOG_CATEGORY(TUHLog);
  
