@@ -8,6 +8,7 @@
 //#include "Perception/AISenseConfig_Hearing.h"
 //#include "Perception/AISense_Damage.h"
 //#include "Perception/AISenseConfig_Damage.h"
+#include "TUH_AICharacter.h"
 #include "AICharacterInterface.h"
 #include "TUH_AIController.h"
 
@@ -30,39 +31,45 @@ void ATUH_AIController::OnAIPerceptionUpdated(TArray<AActor*> Actors)
 		{
 			for (auto Stimuli : Info.LastSensedStimuli)
 			{
-				if (!Stimuli.IsExpired() && Stimuli.IsActive())
+				auto Pawn = Cast<ATUH_AICharacter>(GetPawn());
+				if (Pawn)
 				{
-					auto Pawn = GetPawn();
-					if (Pawn->GetClass()->ImplementsInterface(UAICharacterInterface::StaticClass()))
+					if (!Stimuli.IsExpired() && Stimuli.IsActive())
 					{
 						auto Sense = AIPerception->GetSenseConfig(Stimuli.Type)->GetSenseImplementation();
-						auto SenseValue = IAICharacterInterface::Execute_UpdateStimuli(Pawn, Actor, Stimuli.ReceiverLocation, Stimuli.StimulusLocation, Sense);
+						auto SenseValue = Pawn->UpdateStimuli(Actor, Stimuli.ReceiverLocation, Stimuli.StimulusLocation, Sense);
 						if (SenseValue)
 						{
-							if (!SensedActors.Contains(Actor))
+							int Key = -1;
+							if (!Pawn->SensedActorsKeys.Contains(Actor))
 							{
-								SensedActors.Add(Actor) = 0;
+								Key = Pawn->SensedActorsKeys.Add(Actor);
+								Pawn->SensedActorsValues.Add(0);
 							}
-							SensedActors[Actor] += SenseValue;
-							if (SensedActors[Actor] >= 100)
+							else
 							{
-								IAICharacterInterface::Execute_DetectedActor(Pawn, Actor);
+								Key = Pawn->SensedActorsKeys.IndexOfByKey(Actor);
+							}
+							Pawn->SensedActorsValues[Key] += SenseValue;
+							if (Pawn->SensedActorsValues[Key] >= 100)
+							{
+								Pawn->DetectedActor(Actor);
 							}
 
-							if (!ActivelySensedActors.Contains(Actor))
+							if (!Pawn->ActivelySensedActors.Contains(Actor))
 							{
-								ActivelySensedActors.Add(Actor);
+								Pawn->ActivelySensedActors.Add(Actor);
 							}
 						}
 						else
 						{
-							ActivelySensedActors.Remove(Actor);
+							Pawn->ActivelySensedActors.Remove(Actor);
 						}
 					}
-				}
-				else
-				{
-					ActivelySensedActors.Remove(Actor);
+					else
+					{
+						Pawn->ActivelySensedActors.Remove(Actor);
+					}
 				}
 			}
 		}
@@ -73,26 +80,27 @@ void ATUH_AIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	for (auto Pair : SensedActors)
+	auto Pawn = Cast<ATUH_AICharacter>(GetPawn());
+	if (Pawn)
 	{
-		auto Actor = Pair.Key;
-		if (!ActivelySensedActors.Contains(Actor))
+		TArray<int> KeysToRemove;
+		for (auto Actor : Pawn->SensedActorsKeys)
 		{
-			SensedActors[Actor] -= DeltaTime * 100;
-			if (SensedActors[Actor] <= 0)
+			auto Key = Pawn->SensedActorsKeys.IndexOfByKey(Actor);
+			if (!Pawn->ActivelySensedActors.Contains(Actor))
 			{
-				SensedActors.Remove(Actor);
+				Pawn->SensedActorsValues[Key] -= DeltaTime * 100;
+				if (Pawn->SensedActorsValues[Key] <= 0)
+				{
+					KeysToRemove.Add(Key);
+				}
 			}
 		}
+
+		for (auto i = KeysToRemove.Num() - 1; i >= 0; i--)
+		{
+			Pawn->SensedActorsKeys.RemoveAt(KeysToRemove[i]);
+			Pawn->SensedActorsValues.RemoveAt(KeysToRemove[i]);
+		}
 	}
-}
-
-TArray<AActor *> ATUH_AIController::GetSensedActors(TArray<float> & AlertedValues)
-{
-	AlertedValues.Reset();
-	SensedActors.GenerateValueArray(AlertedValues);
-
-	TArray<AActor *> ActorArray;
-	SensedActors.GenerateKeyArray(ActorArray);
-	return ActorArray;
 }

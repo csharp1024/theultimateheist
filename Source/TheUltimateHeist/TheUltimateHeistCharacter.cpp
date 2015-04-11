@@ -41,6 +41,9 @@ ATheUltimateHeistCharacter::ATheUltimateHeistCharacter(const FObjectInitializer&
 
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P are set in the
 	// derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	static uint8 id = 0;
+	TeamId = FGenericTeamId(id++);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -179,10 +182,13 @@ void ATheUltimateHeistCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(TUHLog, Log, TEXT("Registering '%s' as stimuli source."), *this->GetName());
-	if (!UAIPerceptionSystem::RegisterPerceptionStimuliSource(GetWorld(), UAISense_Sight::StaticClass(), this))
+	if (Role == ROLE_Authority)
 	{
-		UE_LOG(TUHLog, Warning, TEXT("'%s' failed to register perception stimuli."), *this->GetName());
+		UE_LOG(TUHLog, Log, TEXT("Registering '%s' as stimuli source."), *this->GetName());
+		if (!UAIPerceptionSystem::RegisterPerceptionStimuliSource(GetWorld(), UAISense_Sight::StaticClass(), this))
+		{
+			UE_LOG(TUHLog, Warning, TEXT("'%s' failed to register perception stimuli."), *this->GetName());
+		}
 	}
 }
 

@@ -4,6 +4,7 @@
 #define __THEULTIMATEHEIST_H__
 
 #include "EngineMinimal.h"
+#include "EngineLogs.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(TUHLog, Log, All);
 

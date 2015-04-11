@@ -19,13 +19,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 		UAIPerceptionComponent * AIPerception;
 
-	UFUNCTION(BlueprintCallable, Category = "AI|Interactions")
-		TArray<AActor *> GetSensedActors(TArray<float> & AlertedValues);
-
 protected:
-	TMap<AActor *, float> SensedActors;
-	TArray<AActor *> ActivelySensedActors;
-
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
