@@ -45,6 +45,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
 		float Health;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+		float Concealment;
+
 	UFUNCTION(BlueprintCallable, Category = Team)
 		void SetTeamId(uint8 Team);
 
