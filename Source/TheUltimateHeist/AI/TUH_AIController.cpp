@@ -44,6 +44,10 @@ void ATUH_AIController::OnAIPerceptionUpdated(TArray<AActor*> Actors)
 								SensedActors.Add(Actor) = 0;
 							}
 							SensedActors[Actor] += SenseValue;
+							if (SensedActors[Actor] >= 100)
+							{
+								IAICharacterInterface::Execute_DetectedActor(Pawn, Actor);
+							}
 
 							if (!ActivelySensedActors.Contains(Actor))
 							{

@@ -17,4 +17,7 @@ class IAICharacterInterface
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 		float UpdateStimuli(AActor * Actor, FVector ReceiverLocation, FVector StimulusLocation, TSubclassOf<UAISense> SenseClass);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void DetectedActor(AActor * Actor);
 };
