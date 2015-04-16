@@ -175,16 +175,16 @@ bool ATheUltimateHeistCharacter::EnableTouchscreenMovement(class UInputComponent
 	return bResult;
 }
 
-void ATheUltimateHeistCharacter::BeginPlay()
+void ATheUltimateHeistCharacter::PossessedBy(AController * NewController)
 {
-	Super::BeginPlay();
+	Super::PossessedBy(NewController);
 
 	if (Role == ROLE_Authority)
 	{
-		UE_LOG(TUHLog, Log, TEXT("Registering '%s' as stimuli source."), *this->GetName());
+		UE_LOG(TUHLog, Log, TEXT("Registering '%s' as stimuli source"), *this->GetName());
 		if (!UAIPerceptionSystem::RegisterPerceptionStimuliSource(GetWorld(), UAISense_Sight::StaticClass(), this))
 		{
-			UE_LOG(TUHLog, Warning, TEXT("'%s' failed to register perception stimuli."), *this->GetName());
+			UE_LOG(TUHLog, Error, TEXT("Failed to register '%s' as stimuli source"), *this->GetName());
 		}
 	}
 }

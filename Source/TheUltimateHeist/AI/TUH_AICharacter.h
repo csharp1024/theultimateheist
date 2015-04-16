@@ -16,9 +16,9 @@ class THEULTIMATEHEIST_API ATUH_AICharacter : public ATheUltimateHeistCharacter
 public:
 	TArray<AActor *> ActivelySensedActors;
 
-	UPROPERTY(BlueprintReadOnly, Replicated)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
 		TArray<AActor *> SensedActorsKeys;
-	UPROPERTY(BlueprintReadOnly, Replicated)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated)
 		TArray<float> SensedActorsValues;
 
 	UFUNCTION(BlueprintImplementableEvent)

@@ -60,8 +60,8 @@ public:
 
 protected:
 
-	virtual void BeginPlay() override;
-	
+	virtual void PossessedBy(AController * NewController) override;
+
 	/** Fires a projectile. */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnFire();
