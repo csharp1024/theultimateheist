@@ -2,12 +2,8 @@
 
 #include "TheUltimateHeist.h"
 #include "Perception/AIPerceptionComponent.h"
-#include "Perception/AISense_Sight.h"
-#include "Perception/AISenseConfig_Sight.h"
-//#include "Perception/AISense_Hearing.h"
-//#include "Perception/AISenseConfig_Hearing.h"
-//#include "Perception/AISense_Damage.h"
-//#include "Perception/AISenseConfig_Damage.h"
+#include "Perception/AISense.h"
+#include "Perception/AISenseConfig.h"
 #include "TUH_AICharacter.h"
 #include "AICharacterInterface.h"
 #include "TUH_AIController.h"
@@ -15,15 +11,11 @@
 ATUH_AIController::ATUH_AIController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AIPerception = ObjectInitializer.CreateDefaultSubobject<UAIPerceptionComponent>(this, "AIPerception");
-	AddComponent(FName("AIPerception"), true, FTransform(), AIPerception);
-	AIPerception->OnPerceptionUpdated.AddDynamic(this, &ATUH_AIController::OnAIPerceptionUpdated);
-
-	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ATUH_AIController::OnAIPerceptionUpdated(TArray<AActor*> Actors)
 {
+	auto AIPerception = GetPerceptionComponent();
 	for (auto Actor : Actors)
 	{
 		FActorPerceptionBlueprintInfo Info;

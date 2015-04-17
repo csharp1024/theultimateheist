@@ -16,9 +16,6 @@ class THEULTIMATEHEIST_API ATUH_AIController : public AAIController
 public:
 	ATUH_AIController(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(EditDefaultsOnly)
-		UAIPerceptionComponent * AIPerception;
-
 protected:
 	virtual void Tick(float DeltaTime) override;
 

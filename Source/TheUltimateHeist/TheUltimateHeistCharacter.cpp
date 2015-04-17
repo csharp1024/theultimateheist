@@ -53,16 +53,16 @@ void ATheUltimateHeistCharacter::SetupPlayerInputComponent(class UInputComponent
 
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	
+
 	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ATheUltimateHeistCharacter::TouchStarted);
-	if( EnableTouchscreenMovement(InputComponent) == false )
+	if (EnableTouchscreenMovement(InputComponent) == false)
 	{
 		InputComponent->BindAction("Fire", IE_Pressed, this, &ATheUltimateHeistCharacter::OnFire);
 	}
-	
+
 	InputComponent->BindAxis("MoveForward", this, &ATheUltimateHeistCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &ATheUltimateHeistCharacter::MoveRight);
-	
+
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
@@ -74,7 +74,7 @@ void ATheUltimateHeistCharacter::SetupPlayerInputComponent(class UInputComponent
 
 void ATheUltimateHeistCharacter::BeginTouch(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
-	if( TouchItem.bIsPressed == true )
+	if (TouchItem.bIsPressed == true)
 	{
 		return;
 	}
@@ -90,7 +90,7 @@ void ATheUltimateHeistCharacter::EndTouch(const ETouchIndex::Type FingerIndex, c
 	{
 		return;
 	}
-	if( ( FingerIndex == TouchItem.FingerIndex ) && (TouchItem.bMoved == false) )
+	if ((FingerIndex == TouchItem.FingerIndex) && (TouchItem.bMoved == false))
 	{
 		OnFire();
 	}
@@ -99,7 +99,7 @@ void ATheUltimateHeistCharacter::EndTouch(const ETouchIndex::Type FingerIndex, c
 
 void ATheUltimateHeistCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
-	if ((TouchItem.bIsPressed == true) && ( TouchItem.FingerIndex==FingerIndex))
+	if ((TouchItem.bIsPressed == true) && (TouchItem.FingerIndex == FingerIndex))
 	{
 		if (TouchItem.bIsPressed)
 		{
@@ -111,7 +111,7 @@ void ATheUltimateHeistCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex
 					FVector MoveDelta = Location - TouchItem.Location;
 					FVector2D ScreenSize;
 					ViewportClient->GetViewportSize(ScreenSize);
-					FVector2D ScaledDelta = FVector2D( MoveDelta.X, MoveDelta.Y) / ScreenSize;									
+					FVector2D ScaledDelta = FVector2D(MoveDelta.X, MoveDelta.Y) / ScreenSize;
 					if (ScaledDelta.X != 0.0f)
 					{
 						TouchItem.bMoved = true;
@@ -165,7 +165,7 @@ void ATheUltimateHeistCharacter::LookUpAtRate(float Rate)
 bool ATheUltimateHeistCharacter::EnableTouchscreenMovement(class UInputComponent* InputComponent)
 {
 	bool bResult = false;
-	if(FPlatformMisc::GetUseVirtualJoysticks() || GetDefault<UInputSettings>()->bUseMouseForTouch )
+	if (FPlatformMisc::GetUseVirtualJoysticks() || GetDefault<UInputSettings>()->bUseMouseForTouch)
 	{
 		bResult = true;
 		InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ATheUltimateHeistCharacter::BeginTouch);
@@ -182,10 +182,8 @@ void ATheUltimateHeistCharacter::PossessedBy(AController * NewController)
 	if (Role == ROLE_Authority)
 	{
 		UE_LOG(TUHLog, Log, TEXT("Registering '%s' as stimuli source"), *this->GetName());
-		if (!UAIPerceptionSystem::RegisterPerceptionStimuliSource(GetWorld(), UAISense_Sight::StaticClass(), this))
-		{
-			UE_LOG(TUHLog, Error, TEXT("Failed to register '%s' as stimuli source"), *this->GetName());
-		}
+		auto PerceptionSystem = UAIPerceptionSystem::GetCurrent(GetWorld());
+		PerceptionSystem->RegisterSource<UAISense_Sight>(*this);
 	}
 }
 
@@ -207,6 +205,7 @@ FGenericTeamId ATheUltimateHeistCharacter::GetGenericTeamId() const
 ETeamAttitude::Type ATheUltimateHeistCharacter::GetTeamAttitudeTowards(const AActor& Other) const
 {
 	auto OtherTeam = FGenericTeamId::GetTeamIdentifier(&Other);
+	UE_LOG(TUHLog, Log, TEXT("[%s]%d - [%s]%d"), *Other.GetName(), OtherTeam.GetId(), *GetName(), TeamId.GetId());
 	if (OtherTeam == FGenericTeamId::NoTeam)
 	{
 		return ETeamAttitude::Neutral;
@@ -215,6 +214,6 @@ ETeamAttitude::Type ATheUltimateHeistCharacter::GetTeamAttitudeTowards(const AAc
 	{
 		return ETeamAttitude::Friendly;
 	}
-		
+
 	return ETeamAttitude::Hostile;
 }
