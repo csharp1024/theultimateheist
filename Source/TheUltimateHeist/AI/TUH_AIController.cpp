@@ -29,7 +29,7 @@ void ATUH_AIController::OnAIPerceptionUpdated(TArray<AActor*> Actors)
 					if (!Stimuli.IsExpired() && Stimuli.IsActive())
 					{
 						auto Sense = AIPerception->GetSenseConfig(Stimuli.Type)->GetSenseImplementation();
-						auto SenseValue = Pawn->UpdateStimuli(Actor, Stimuli.ReceiverLocation, Stimuli.StimulusLocation, Sense);
+						auto SenseValue = Pawn->UpdateStimuli(Actor, Stimuli.Strength, Stimuli.ReceiverLocation, Stimuli.StimulusLocation, Sense);
 						if (SenseValue)
 						{
 							int Key = -1;

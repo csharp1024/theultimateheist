@@ -19,6 +19,6 @@ public:
 protected:
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-	void OnAIPerceptionUpdated(TArray<AActor*> Actors);
+	UFUNCTION(BlueprintCallable, Category = "AI Events")
+		void OnAIPerceptionUpdated(TArray<AActor*> Actors);
 };

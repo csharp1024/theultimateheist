@@ -22,7 +22,7 @@ public:
 		TArray<float> SensedActorsValues;
 
 	UFUNCTION(BlueprintImplementableEvent)
-		float UpdateStimuli(AActor * Actor, FVector ReceiverLocation, FVector StimulusLocation, TSubclassOf<UAISense> SenseClass);
+		float UpdateStimuli(AActor * Actor, float StimulusAmount, FVector ReceiverLocation, FVector StimulusLocation, TSubclassOf<UAISense> SenseClass);
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void DetectedActor(AActor * Actor);
