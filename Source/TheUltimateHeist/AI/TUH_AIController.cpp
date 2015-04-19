@@ -4,8 +4,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISense.h"
 #include "Perception/AISenseConfig.h"
-#include "TUH_AICharacter.h"
-#include "AICharacterInterface.h"
+#include "AIPawn.h"
 #include "TUH_AIController.h"
 
 ATUH_AIController::ATUH_AIController(const FObjectInitializer& ObjectInitializer)
@@ -23,45 +22,54 @@ void ATUH_AIController::OnAIPerceptionUpdated(TArray<AActor*> Actors)
 		{
 			for (auto Stimuli : Info.LastSensedStimuli)
 			{
-				auto Pawn = Cast<ATUH_AICharacter>(GetPawn());
-				if (Pawn)
+				auto Pawn = GetPawn();
+				if (Pawn->GetClass()->ImplementsInterface(UAIPawn::StaticClass()))
 				{
+					auto ActivelySensedActors = IAIPawn::Execute_GetActivelySensedActors(Pawn);
+					auto SensedActorsKeys = IAIPawn::Execute_GetSensedActorsKeys(Pawn);
+					auto SensedActorsValues = IAIPawn::Execute_GetSensedActorsValues(Pawn);
+
 					if (!Stimuli.IsExpired() && Stimuli.IsActive())
 					{
 						auto Sense = AIPerception->GetSenseConfig(Stimuli.Type)->GetSenseImplementation();
-						auto SenseValue = Pawn->UpdateStimuli(Actor, Stimuli.Strength, Stimuli.ReceiverLocation, Stimuli.StimulusLocation, Sense);
+						auto SenseValue = IAIPawn::Execute_UpdateStimuli(Pawn, Actor, Stimuli.Strength, Stimuli.ReceiverLocation, Stimuli.StimulusLocation, Sense);
 						if (SenseValue)
 						{
 							int Key = -1;
-							if (!Pawn->SensedActorsKeys.Contains(Actor))
+							if (!SensedActorsKeys.Contains(Actor))
 							{
-								Key = Pawn->SensedActorsKeys.Add(Actor);
-								Pawn->SensedActorsValues.Add(0);
+								Key = SensedActorsKeys.Add(Actor);
+								SensedActorsValues.Add(0);
 							}
 							else
 							{
-								Key = Pawn->SensedActorsKeys.IndexOfByKey(Actor);
-							}
-							Pawn->SensedActorsValues[Key] += SenseValue;
-							if (Pawn->SensedActorsValues[Key] >= 100)
-							{
-								Pawn->DetectedActor(Actor);
+								Key = SensedActorsKeys.IndexOfByKey(Actor);
 							}
 
-							if (!Pawn->ActivelySensedActors.Contains(Actor))
+							SensedActorsValues[Key] += SenseValue;
+							if (SensedActorsValues[Key] >= 100)
 							{
-								Pawn->ActivelySensedActors.Add(Actor);
+								IAIPawn::Execute_DetectedActor(Pawn, Actor);
+							}
+
+							if (!ActivelySensedActors.Contains(Actor))
+							{
+								ActivelySensedActors.Add(Actor);
 							}
 						}
 						else
 						{
-							Pawn->ActivelySensedActors.Remove(Actor);
+							ActivelySensedActors.Remove(Actor);
 						}
 					}
 					else
 					{
-						Pawn->ActivelySensedActors.Remove(Actor);
+						ActivelySensedActors.Remove(Actor);
 					}
+
+					IAIPawn::Execute_SetActivelySensedActors(Pawn, ActivelySensedActors);
+					IAIPawn::Execute_SetSensedActorsKeys(Pawn, SensedActorsKeys);
+					IAIPawn::Execute_SetSensedActorsValues(Pawn, SensedActorsValues);
 				}
 			}
 		}
@@ -72,17 +80,20 @@ void ATUH_AIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	auto Pawn = Cast<ATUH_AICharacter>(GetPawn());
-	if (Pawn)
+	auto Pawn = GetPawn();
+	if (Pawn->GetClass()->ImplementsInterface(UAIPawn::StaticClass()))
 	{
+		auto ActivelySensedActors = IAIPawn::Execute_GetActivelySensedActors(Pawn);
+		auto SensedActorsKeys = IAIPawn::Execute_GetSensedActorsKeys(Pawn);
+		auto SensedActorsValues = IAIPawn::Execute_GetSensedActorsValues(Pawn);
 		TArray<int> KeysToRemove;
-		for (auto Actor : Pawn->SensedActorsKeys)
+		for (auto Actor : SensedActorsKeys)
 		{
-			auto Key = Pawn->SensedActorsKeys.IndexOfByKey(Actor);
-			if (!Pawn->ActivelySensedActors.Contains(Actor))
+			auto Key = SensedActorsKeys.IndexOfByKey(Actor);
+			if (!ActivelySensedActors.Contains(Actor))
 			{
-				Pawn->SensedActorsValues[Key] -= DeltaTime * 100;
-				if (Pawn->SensedActorsValues[Key] <= 0)
+				SensedActorsValues[Key] -= DeltaTime * 100;
+				if (SensedActorsValues[Key] <= 0)
 				{
 					KeysToRemove.Add(Key);
 				}
@@ -91,8 +102,11 @@ void ATUH_AIController::Tick(float DeltaTime)
 
 		for (auto i = KeysToRemove.Num() - 1; i >= 0; i--)
 		{
-			Pawn->SensedActorsKeys.RemoveAt(KeysToRemove[i]);
-			Pawn->SensedActorsValues.RemoveAt(KeysToRemove[i]);
+			SensedActorsKeys.RemoveAt(KeysToRemove[i]);
+			SensedActorsValues.RemoveAt(KeysToRemove[i]);
 		}
+
+		IAIPawn::Execute_SetSensedActorsKeys(Pawn, SensedActorsKeys);
+		IAIPawn::Execute_SetSensedActorsValues(Pawn, SensedActorsValues);
 	}
 }
