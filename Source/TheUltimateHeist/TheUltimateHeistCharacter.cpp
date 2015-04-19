@@ -184,7 +184,6 @@ void ATheUltimateHeistCharacter::PossessedBy(AController * NewController)
 
 	if (Role == ROLE_Authority)
 	{
-		UE_LOG(TUHLog, Log, TEXT("Registering '%s' as stimuli source"), *this->GetName());
 		auto PerceptionSystem = UAIPerceptionSystem::GetCurrent(GetWorld());
 		PerceptionSystem->RegisterSource<UAISense_Sight>(*this);
 	}
@@ -208,7 +207,6 @@ FGenericTeamId ATheUltimateHeistCharacter::GetGenericTeamId() const
 ETeamAttitude::Type ATheUltimateHeistCharacter::GetTeamAttitudeTowards(const AActor& Other) const
 {
 	auto OtherTeam = FGenericTeamId::GetTeamIdentifier(&Other);
-	UE_LOG(TUHLog, Log, TEXT("[%s]%d - [%s]%d"), *Other.GetName(), OtherTeam.GetId(), *GetName(), TeamId.GetId());
 	if (OtherTeam == FGenericTeamId::NoTeam)
 	{
 		return ETeamAttitude::Neutral;
