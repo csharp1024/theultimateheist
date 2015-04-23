@@ -39,6 +39,10 @@ ATheUltimateHeistCharacter::ATheUltimateHeistCharacter(const FObjectInitializer&
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
 
+	GetMesh()->bRenderCustomDepth = 1;
+	GetMesh()->bRenderCustomTag = 1;
+	GetMesh()->CustomTagColor = FLinearColor(1.0F, 0.0F, 1.0F);
+
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P are set in the
 	// derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 

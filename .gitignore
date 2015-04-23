@@ -11,6 +11,7 @@
 /Binaries/**
 /Plugins/**/Binaries
 /Saved/**
+/DerivedDataCache
 
 # Ignore unix backup files
 *~

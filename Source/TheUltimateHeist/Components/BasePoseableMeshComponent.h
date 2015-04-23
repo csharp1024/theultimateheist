@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "Components/PoseableMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "BasePoseableMeshComponent.generated.h"
 
 /**
  * 
  */
 UCLASS(ClassGroup=(Custom), BlueprintType, Blueprintable)
-class THEULTIMATEHEIST_API UBasePoseableMeshComponent : public UPoseableMeshComponent
+class THEULTIMATEHEIST_API UBasePoseableMeshComponent : public USkeletalMeshComponent
 {
 	GENERATED_BODY()
 };
