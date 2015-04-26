@@ -17,5 +17,6 @@ class THEULTIMATEHEIST_API IArmed
 public:
 	virtual FVector GetForwardVector() PURE_VIRTUAL(IArmed::GetForwardVector, return FVector(););
 	virtual FVector GetEyePosition() PURE_VIRTUAL(IArmed::GetEyePosition, return FVector(););
-	virtual void PositionGun() PURE_VIRTUAL(IArmed::PositionGun, );
+	virtual USkeletalMeshComponent * GetSpecificPawnMesh(bool bFirstPerson) PURE_VIRTUAL(IArmed::GetSpecificPawnMesh, return nullptr;);
+	virtual FName GetWeaponAttachPoint(bool bFirstPerson) PURE_VIRTUAL(IArmed::GetWeaponAttachPoint, return TEXT("Invalid"););
 };

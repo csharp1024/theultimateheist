@@ -3,27 +3,23 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "Gun.generated.h"
+#include "Weapon.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGunShoot);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponShoot);
 
 UCLASS()
-class THEULTIMATEHEIST_API AGun : public AActor
+class THEULTIMATEHEIST_API AWeapon : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	AGun(const FObjectInitializer & ObjectInitializer);
-
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const;
+	AWeapon(const FObjectInitializer & ObjectInitializer);
 
 	UPROPERTY(BlueprintReadOnly)
 		float Time;
 	UPROPERTY(BlueprintReadOnly)
 		bool Shooting;
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Armed)
-		bool Armed;
 
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_MyPawn)
 		TScriptInterface<class IArmed> MyPawn;
@@ -38,7 +34,13 @@ public:
 		USkeletalMeshComponent * Mesh;
 
 	UPROPERTY(BlueprintAssignable)
-		FGunShoot OnShoot;
+		FWeaponShoot OnShoot;
+
+	void OnEquip();
+	void OnUnEquip();
+
+	void AttachMeshToPawn();
+	void DetachMeshFromPawn();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 		void Shoot();
@@ -50,16 +52,6 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 		void MULTICAST_Shoot();
 	void MULTICAST_Shoot_Implementation();
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-		void DrawGun();
-	UFUNCTION(Reliable, Server, WithValidation)
-		void SERVER_DrawGun();
-	bool SERVER_DrawGun_Validate();
-	void SERVER_DrawGun_Implementation();
-
-	UFUNCTION()
-		void OnRep_Armed();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 		void SetMesh(USkeletalMesh * SkeletalMesh);

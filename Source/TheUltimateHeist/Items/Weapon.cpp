@@ -3,10 +3,10 @@
 #include "TheUltimateHeist.h"
 #include "UnrealNetwork.h"
 #include "Interfaces/Armed.h"
-#include "Gun.h"
+#include "Weapon.h"
 
 // Sets default values
-AGun::AGun(const FObjectInitializer & ObjectInitializer)
+AWeapon::AWeapon(const FObjectInitializer & ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	bReplicates = true;
@@ -21,18 +21,25 @@ AGun::AGun(const FObjectInitializer & ObjectInitializer)
 	Mesh->AttachParent = RootComponent;
 }
 
-void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
 {
-	DOREPLIFETIME(AGun, Armed);
+	DOREPLIFETIME(AWeapon, MyPawn);
 }
 
-void AGun::OnRep_MyPawn()
+void AWeapon::OnRep_MyPawn()
 {
 	UE_LOG(TUHLog, Log, TEXT("[OnRep_MyPawn] %s: %d"), LOG_NETMODE(), MyPawn.GetObject());
-	SetOwningPawn(MyPawn);
+	if (MyPawn)
+	{
+		OnEnterInventory(MyPawn);
+	}
+	else
+	{
+		//OnLeaveInventory();
+	}
 }
 
-void AGun::SetOwningPawn(const TScriptInterface<IArmed> & NewOwner)
+void AWeapon::SetOwningPawn(const TScriptInterface<IArmed> & NewOwner)
 {
 	UE_LOG(TUHLog, Log, TEXT("[SetOwningPawn] %s:"), LOG_NETMODE());
 	if (MyPawn != NewOwner)
@@ -45,13 +52,42 @@ void AGun::SetOwningPawn(const TScriptInterface<IArmed> & NewOwner)
 	}
 }
 
-void AGun::OnEnterInventory(const TScriptInterface<IArmed> & Pawn)
+void AWeapon::OnEnterInventory(const TScriptInterface<IArmed> & Pawn)
 {
 	UE_LOG(TUHLog, Log, TEXT("[OnEnterInventory] %s:"), LOG_NETMODE());
 	SetOwningPawn(Pawn);
 }
 
-void AGun::Shoot()
+void AWeapon::OnEquip()
+{
+	AttachMeshToPawn();
+}
+
+void AWeapon::OnUnEquip()
+{
+	DetachMeshFromPawn();
+}
+
+void AWeapon::AttachMeshToPawn()
+{
+	if (MyPawn)
+	{
+		DetachMeshFromPawn();
+
+		auto Pawn = Cast<APawn>(MyPawn.GetObject());
+		auto PawnMesh = MyPawn->GetSpecificPawnMesh(Pawn->IsLocallyControlled());
+		Mesh->SetHiddenInGame(false);
+		Mesh->AttachTo(PawnMesh, MyPawn->GetWeaponAttachPoint(Pawn->IsLocallyControlled()));
+	}
+}
+
+void AWeapon::DetachMeshFromPawn()
+{
+	Mesh->DetachFromParent();
+	Mesh->SetHiddenInGame(true);
+}
+
+void AWeapon::Shoot()
 {
 	if (HasAuthority())
 	{
@@ -66,12 +102,12 @@ void AGun::Shoot()
 	}
 }
 
-bool AGun::SERVER_Shoot_Validate()
+bool AWeapon::SERVER_Shoot_Validate()
 {
-	return Armed && !Shooting;
+	return !Shooting;
 }
 
-void AGun::SERVER_Shoot_Implementation()
+void AWeapon::SERVER_Shoot_Implementation()
 {
 	Shooting = true;
 	MULTICAST_Shoot();
@@ -90,53 +126,14 @@ void AGun::SERVER_Shoot_Implementation()
 	}
 }
 
-void AGun::MULTICAST_Shoot_Implementation()
+void AWeapon::MULTICAST_Shoot_Implementation()
 {
 	// spawn emitter
 	// play sound
 	// play animation
 }
 
-void AGun::DrawGun()
-{
-	UE_LOG(TUHLog, Log, TEXT("[DrawGun] %s: "), LOG_NETMODE());
-	if (HasAuthority())
-	{
-		if (SERVER_DrawGun_Validate())
-		{
-			SERVER_DrawGun_Implementation();
-		}
-	}
-	else
-	{
-		SERVER_DrawGun();
-	}
-}
-
-bool AGun::SERVER_DrawGun_Validate()
-{
-	return !Armed;
-}
-
-void AGun::SERVER_DrawGun_Implementation()
-{
-	if (HasAuthority() && !Armed)
-	{
-		Armed = true;
-		OnRep_Armed();
-	}
-}
-
-void AGun::OnRep_Armed()
-{
-	UE_LOG(TUHLog, Log, TEXT("[OnRepArmed] %s: %d"), LOG_NETMODE(), MyPawn.GetObject());
-	if (MyPawn)
-	{
-		MyPawn->PositionGun();
-	}
-}
-
-void AGun::SetMesh(USkeletalMesh * SkeletalMesh)
+void AWeapon::SetMesh(USkeletalMesh * SkeletalMesh)
 {
 	Mesh->SetSkeletalMesh(SkeletalMesh);
 }
