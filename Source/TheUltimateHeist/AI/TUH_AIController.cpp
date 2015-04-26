@@ -87,9 +87,9 @@ void ATUH_AIController::Tick(float DeltaTime)
 		auto SensedActorsKeys = IAIPawn::Execute_GetSensedActorsKeys(Pawn);
 		auto SensedActorsValues = IAIPawn::Execute_GetSensedActorsValues(Pawn);
 		TArray<int> KeysToRemove;
-		for (auto Actor : SensedActorsKeys)
+		for (auto Key = 0; Key < SensedActorsKeys.Num(); Key++)
 		{
-			auto Key = SensedActorsKeys.IndexOfByKey(Actor);
+			auto Actor = SensedActorsKeys[Key];
 			if (!ActivelySensedActors.Contains(Actor))
 			{
 				SensedActorsValues[Key] -= DeltaTime * 100;

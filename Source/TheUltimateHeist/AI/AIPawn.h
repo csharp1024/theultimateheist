@@ -33,4 +33,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "AI Sensing")
 		void DetectedActor(AActor * Actor);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Highlight")
+		void SetHighlight(bool bHighlight);
 };

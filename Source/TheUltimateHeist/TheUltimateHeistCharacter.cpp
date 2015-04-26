@@ -39,7 +39,7 @@ ATheUltimateHeistCharacter::ATheUltimateHeistCharacter(const FObjectInitializer&
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
 
-	GetMesh()->bRenderCustomDepth = 1;
+	//GetMesh()->bRenderCustomDepth = 1;
 	GetMesh()->bRenderCustomTag = 1;
 	GetMesh()->CustomTagColor = FLinearColor(1.0F, 0.0F, 1.0F);
 

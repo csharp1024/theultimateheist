@@ -15,10 +15,7 @@ class THEULTIMATEHEIST_API IArmed
 	GENERATED_IINTERFACE_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Armed")
-		FVector GetForwardVector();
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Armed")
-		FVector GetEyePosition();
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Armed")
-		void PositionGun();
+	virtual FVector GetForwardVector() PURE_VIRTUAL(IArmed::GetForwardVector, return FVector(););
+	virtual FVector GetEyePosition() PURE_VIRTUAL(IArmed::GetEyePosition, return FVector(););
+	virtual void PositionGun() PURE_VIRTUAL(IArmed::PositionGun, );
 };

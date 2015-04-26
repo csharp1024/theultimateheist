@@ -3,9 +3,12 @@
 #ifndef __THEULTIMATEHEIST_H__
 #define __THEULTIMATEHEIST_H__
 
-#include "EngineMinimal.h"
-#include "EngineLogs.h"
+#include "Engine.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(TUHLog, Log, All);
+
+const FString EnumToString(const TCHAR * Enum, int32 EnumValue);
+
+#define LOG_NETMODE() GetNetMode() < NM_Client ? TEXT("Server") : TEXT("Client")
 
 #endif

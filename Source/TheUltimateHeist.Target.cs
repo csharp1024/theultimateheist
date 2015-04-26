@@ -8,6 +8,7 @@ public class TheUltimateHeistTarget : TargetRules
 	public TheUltimateHeistTarget(TargetInfo Target)
 	{
 		Type = TargetType.Game;
+        bUsesSteam = true;
 	}
 
 	//

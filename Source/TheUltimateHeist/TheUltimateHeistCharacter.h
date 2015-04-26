@@ -63,8 +63,7 @@ protected:
 	virtual void PossessedBy(AController * NewController) override;
 
 	/** Fires a projectile. */
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnFire();
+	virtual void OnFire() PURE_VIRTUAL(ATheUltimateHeistCharacter::OnFire, );
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
