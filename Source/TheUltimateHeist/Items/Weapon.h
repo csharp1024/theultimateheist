@@ -7,6 +7,22 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponShoot);
 
+USTRUCT()
+struct FWeaponAnim
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		UAnimationAsset * WeaponAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		UAnimMontage * Anim1P;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		UAnimMontage * Anim3P;
+	UPROPERTY(EditDefaultsOnly, Category = "Timing")
+		float Time;
+};
+
 UCLASS()
 class THEULTIMATEHEIST_API AWeapon : public AActor
 {
@@ -16,10 +32,7 @@ public:
 	// Sets default values for this actor's properties
 	AWeapon(const FObjectInitializer & ObjectInitializer);
 
-	UPROPERTY(BlueprintReadOnly)
-		float Time;
-	UPROPERTY(BlueprintReadOnly)
-		bool Shooting;
+	bool Shooting;
 
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_MyPawn)
 		TScriptInterface<class IArmed> MyPawn;
@@ -30,11 +43,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 		void OnEnterInventory(const TScriptInterface<class IArmed> & Pawn);
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		USkeletalMeshComponent * Mesh;
-
-	UPROPERTY(BlueprintAssignable)
-		FWeaponShoot OnShoot;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		FWeaponAnim EquipAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		FWeaponAnim ShootAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		FWeaponAnim ReloadAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+		UParticleSystem * ShootParticles;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundCue * ShootSound;
 
 	void OnEquip();
 	void OnUnEquip();
@@ -48,6 +68,7 @@ public:
 		void SERVER_Shoot();
 	bool SERVER_Shoot_Validate();
 	void SERVER_Shoot_Implementation();
+	void ShootFinished();
 
 	UFUNCTION(NetMulticast, Unreliable)
 		void MULTICAST_Shoot();

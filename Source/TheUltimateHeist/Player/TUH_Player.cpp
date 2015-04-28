@@ -25,9 +25,22 @@ void ATUH_Player::PostInitializeComponents()
 
 	if (HasAuthority())
 	{
+		SpawnDefaultInventory();
+	}
+}
+
+void ATUH_Player::SpawnDefaultInventory()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	for (auto Class : DefaultInventoryClasses)
+	{
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.bNoCollisionFail = true;
-		auto Weapon = GetWorld()->SpawnActor<AWeapon>(AWeapon::StaticClass(), SpawnParams);
+		auto Weapon = GetWorld()->SpawnActor<AWeapon>(Class, SpawnParams);
 		AddWeapon(Weapon);
 	}
 }
