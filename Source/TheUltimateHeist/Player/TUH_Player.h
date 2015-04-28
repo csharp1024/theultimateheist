@@ -23,6 +23,8 @@ public:
 	virtual FName GetWeaponAttachPoint(bool bFirstPerson) override;
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+		TArray<TSubclassOf<AWeapon>> DefaultInventoryClasses;
 	UPROPERTY(Transient, Replicated)
 		TArray<AWeapon *> Inventory;
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
@@ -38,6 +40,7 @@ protected:
 	bool SERVER_EquipWeapon_Validate(AWeapon * Weapon);
 	void SERVER_EquipWeapon_Implementation(AWeapon * Weapon);
 
+	void SpawnDefaultInventory();
 	void SetCurrentWeapon(AWeapon * NewWeapon, AWeapon * LastWeapon = nullptr);
 
 	// APawn interface

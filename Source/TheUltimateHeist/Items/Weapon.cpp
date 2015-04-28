@@ -91,9 +91,23 @@ void AWeapon::Shoot()
 {
 	if (HasAuthority())
 	{
-		if (SERVER_Shoot_Validate())
+		if (!Shooting)
 		{
-			SERVER_Shoot_Implementation();
+			Shooting = true;
+			MULTICAST_Shoot();
+
+			auto EyePosition = MyPawn->GetEyePosition();
+			auto Forward = MyPawn->GetForwardVector();
+
+			FHitResult HitResult;
+			FCollisionQueryParams Params;
+			if (ActorLineTraceSingle(HitResult, EyePosition, EyePosition + Forward * 10000, ECollisionChannel::ECC_Pawn, Params))
+			{
+
+			}
+
+			FTimerHandle Handle;
+			GetWorldTimerManager().SetTimer(Handle, this, &AWeapon::ShootFinished, ShootAnim.Time);
 		}
 	}
 	else
@@ -102,35 +116,30 @@ void AWeapon::Shoot()
 	}
 }
 
+void AWeapon::ShootFinished()
+{
+	Shooting = false;
+}
+
 bool AWeapon::SERVER_Shoot_Validate()
 {
-	return !Shooting;
+	return true;
 }
 
 void AWeapon::SERVER_Shoot_Implementation()
 {
-	Shooting = true;
-	MULTICAST_Shoot();
-
-	OnShoot.Broadcast();
-
-	Time = 0;
-	auto EyePosition = MyPawn->GetEyePosition();
-	auto Forward = MyPawn->GetForwardVector();
-
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	if (ActorLineTraceSingle(HitResult, EyePosition, EyePosition + Forward * 10000, ECollisionChannel::ECC_Pawn, Params))
-	{
-
-	}
+	Shoot();
 }
 
 void AWeapon::MULTICAST_Shoot_Implementation()
 {
+	FName AttachPoint = TEXT("Muzzle");
 	// spawn emitter
+	auto PSC = UGameplayStatics::SpawnEmitterAttached(ShootParticles, Mesh, AttachPoint);
 	// play sound
+	auto AC = UGameplayStatics::PlaySoundAttached(ShootSound, Mesh, AttachPoint);
 	// play animation
+	Mesh->PlayAnimation(ShootAnim.WeaponAnim, false);
 }
 
 void AWeapon::SetMesh(USkeletalMesh * SkeletalMesh)

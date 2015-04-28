@@ -10,9 +10,10 @@ void ATUH_PlayerController::HighlightManager_AddActor(AActor * Actor, float Leng
 {
 	if (HasAuthority())
 	{
-		if (SERVER_HighlightManager_AddActor_Validate(Actor, Length))
+		auto GameState = Cast<ATUH_GameState>(GetWorld()->GameState);
+		if (GameState->HighlightManager)
 		{
-			SERVER_HighlightManager_AddActor_Implementation(Actor, Length);
+			GameState->HighlightManager->SERVER_AddActor(Actor, Length);
 		}
 	}
 	else
@@ -23,14 +24,10 @@ void ATUH_PlayerController::HighlightManager_AddActor(AActor * Actor, float Leng
 
 bool ATUH_PlayerController::SERVER_HighlightManager_AddActor_Validate(AActor * Actor, float Length)
 {
-	return Actor->GetClass()->ImplementsInterface(UAIPawn::StaticClass()) && Length > 0;
+	return Actor->GetClass()->ImplementsInterface(UAIPawn::StaticClass());
 }
 
 void ATUH_PlayerController::SERVER_HighlightManager_AddActor_Implementation(AActor * Actor, float Length)
 {
-	auto GameState = Cast<ATUH_GameState>(GetWorld()->GameState);
-	if (GameState->HighlightManager)
-	{
-		GameState->HighlightManager->SERVER_AddActor(Actor, Length);
-	}
+	HighlightManager_AddActor(Actor, Length);
 }
