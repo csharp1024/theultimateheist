@@ -40,8 +40,7 @@ public:
 		void OnRep_MyPawn();
 	void SetOwningPawn(const TScriptInterface<class IArmed> & Pawn);
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-		void OnEnterInventory(const TScriptInterface<class IArmed> & Pawn);
+	void OnEnterInventory(const TScriptInterface<class IArmed> & Pawn);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		USkeletalMeshComponent * Mesh;
@@ -62,8 +61,7 @@ public:
 	void AttachMeshToPawn();
 	void DetachMeshFromPawn();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-		void Shoot();
+	void Shoot();
 	UFUNCTION(Reliable, Server, WithValidation)
 		void SERVER_Shoot();
 	bool SERVER_Shoot_Validate();
@@ -74,6 +72,7 @@ public:
 		void MULTICAST_Shoot();
 	void MULTICAST_Shoot_Implementation();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-		void SetMesh(USkeletalMesh * SkeletalMesh);
+	void SetMesh(USkeletalMesh * SkeletalMesh);
+
+	void PlayWeaponMontage(FWeaponAnim & Anim);
 };

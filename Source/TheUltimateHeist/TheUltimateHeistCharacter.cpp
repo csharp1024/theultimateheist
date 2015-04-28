@@ -28,9 +28,6 @@ ATheUltimateHeistCharacter::ATheUltimateHeistCharacter(const FObjectInitializer&
 	FirstPersonCameraComponent->RelativeLocation = FVector(0, 0, 64.f); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	// Default offset from the character location for projectiles to spawn
-	GunOffset = FVector(100.0f, 30.0f, 10.0f);
-
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Mesh1P->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
@@ -191,6 +188,29 @@ void ATheUltimateHeistCharacter::PossessedBy(AController * NewController)
 		auto PerceptionSystem = UAIPerceptionSystem::GetCurrent(GetWorld());
 		PerceptionSystem->RegisterSource<UAISense_Sight>(*this);
 	}
+}
+
+float ATheUltimateHeistCharacter::PlayAnimMontage(UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName)
+{
+	auto PlayerMesh = IsLocallyControlled() ? GetMesh1P() : GetMesh();
+	UAnimInstance * AnimInstance = (PlayerMesh) ? PlayerMesh->GetAnimInstance() : NULL;
+	if (AnimMontage && AnimInstance)
+	{
+		float const Duration = AnimInstance->Montage_Play(AnimMontage, InPlayRate);
+
+		if (Duration > 0.f)
+		{
+			// Start at a given Section.
+			if (StartSectionName != NAME_None)
+			{
+				AnimInstance->Montage_JumpToSection(StartSectionName);
+			}
+
+			return Duration;
+		}
+	}
+
+	return 0.f;
 }
 
 void ATheUltimateHeistCharacter::SetTeamId(uint8 Team)

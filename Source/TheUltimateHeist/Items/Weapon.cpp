@@ -3,6 +3,7 @@
 #include "TheUltimateHeist.h"
 #include "UnrealNetwork.h"
 #include "Interfaces/Armed.h"
+#include "../TheUltimateHeistCharacter.h"
 #include "Weapon.h"
 
 // Sets default values
@@ -28,7 +29,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetime
 
 void AWeapon::OnRep_MyPawn()
 {
-	UE_LOG(TUHLog, Log, TEXT("[OnRep_MyPawn] %s: %d"), LOG_NETMODE(), MyPawn.GetObject());
 	if (MyPawn)
 	{
 		OnEnterInventory(MyPawn);
@@ -41,7 +41,6 @@ void AWeapon::OnRep_MyPawn()
 
 void AWeapon::SetOwningPawn(const TScriptInterface<IArmed> & NewOwner)
 {
-	UE_LOG(TUHLog, Log, TEXT("[SetOwningPawn] %s:"), LOG_NETMODE());
 	if (MyPawn != NewOwner)
 	{
 		auto Pawn = Cast<APawn>(NewOwner.GetObject());
@@ -54,13 +53,14 @@ void AWeapon::SetOwningPawn(const TScriptInterface<IArmed> & NewOwner)
 
 void AWeapon::OnEnterInventory(const TScriptInterface<IArmed> & Pawn)
 {
-	UE_LOG(TUHLog, Log, TEXT("[OnEnterInventory] %s:"), LOG_NETMODE());
 	SetOwningPawn(Pawn);
 }
 
 void AWeapon::OnEquip()
 {
 	AttachMeshToPawn();
+
+	PlayWeaponMontage(EquipAnim);
 }
 
 void AWeapon::OnUnEquip()
@@ -145,4 +145,19 @@ void AWeapon::MULTICAST_Shoot_Implementation()
 void AWeapon::SetMesh(USkeletalMesh * SkeletalMesh)
 {
 	Mesh->SetSkeletalMesh(SkeletalMesh);
+}
+
+void AWeapon::PlayWeaponMontage(FWeaponAnim & Anim)
+{
+	if (Anim.WeaponAnim)
+	{
+		Mesh->PlayAnimation(Anim.WeaponAnim, false);
+	}
+
+	auto Pawn = Cast<ATheUltimateHeistCharacter>(MyPawn.GetObject());
+	auto Montage = Pawn->IsLocallyControlled() ? Anim.Anim1P : Anim.Anim3P;
+	if (Montage)
+	{
+		Pawn->PlayAnimMontage(Montage);
+	}
 }

@@ -30,18 +30,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
-	/** Gun muzzle's offset from the characters location */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
-	FVector GunOffset;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
-	class USoundBase* FireSound;
-
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	class UAnimMontage* FireAnimation;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
 		float Health;
 
@@ -50,6 +38,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Team)
 		void SetTeamId(uint8 Team);
+
+	virtual float PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None) override;
 
 	/** IGenericTeamAgentInterface */
 	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;

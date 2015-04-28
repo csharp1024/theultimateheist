@@ -86,7 +86,6 @@ void ATUH_Player::SERVER_EquipWeapon_Implementation(AWeapon * Weapon)
 
 void ATUH_Player::SetCurrentWeapon(AWeapon * NewWeapon, AWeapon * LastWeapon)
 {
-	UE_LOG(TUHLog, Log, TEXT("[SetCurrentWeapon] %s: NewWeapon: %d, LastWeapon: %d"), LOG_NETMODE(), NewWeapon, LastWeapon);
 	AWeapon * LocalLastWeapon = nullptr;
 
 	if (LastWeapon != nullptr)
@@ -156,7 +155,6 @@ FName ATUH_Player::GetWeaponAttachPoint(bool bFirstPerson)
 
 void ATUH_Player::OnFire()
 {
-	UE_LOG(TUHLog, Log, TEXT("[OnFire] %s: %d"), LOG_NETMODE(), CurrentWeapon);
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->Shoot();
@@ -165,11 +163,9 @@ void ATUH_Player::OnFire()
 
 void ATUH_Player::Deploy()
 {
-	UE_LOG(TUHLog, Log, TEXT("[Deploy] %s: %d"), LOG_NETMODE(), CurrentWeapon);
 	EquipWeapon(Inventory[0]);
 }
 
 void ATUH_Player::Interact()
 {
-	UE_LOG(TUHLog, Log, TEXT("[Interact] %s: "), LOG_NETMODE());
 }
