@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "Ammo.h"
 #include "Weapon.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponShoot);
@@ -54,6 +55,9 @@ public:
 		UParticleSystem * ShootParticles;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundCue * ShootSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Features")
+		UAmmo * AmmoType;
 
 	void OnEquip();
 	void OnUnEquip();

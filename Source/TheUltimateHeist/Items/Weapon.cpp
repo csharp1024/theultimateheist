@@ -99,12 +99,7 @@ void AWeapon::Shoot()
 			auto EyePosition = MyPawn->GetEyePosition();
 			auto Forward = MyPawn->GetForwardVector();
 
-			FHitResult HitResult;
-			FCollisionQueryParams Params;
-			if (ActorLineTraceSingle(HitResult, EyePosition, EyePosition + Forward * 10000, ECollisionChannel::ECC_Pawn, Params))
-			{
-
-			}
+			AmmoType->HandleShot(Cast<AActor>(MyPawn.GetObject()), EyePosition, Forward);
 
 			FTimerHandle Handle;
 			GetWorldTimerManager().SetTimer(Handle, this, &AWeapon::ShootFinished, ShootAnim.Time);
