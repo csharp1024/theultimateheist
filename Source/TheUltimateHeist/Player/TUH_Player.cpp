@@ -8,6 +8,8 @@ ATUH_Player::ATUH_Player(const FObjectInitializer & ObjectInitializer)
 {
 	GetMesh()->bOwnerNoSee = true;
 	GetMesh()->CustomTagColor = FLinearColor(0.0F, 0.8F, 1.0F);
+
+	TeamId = FGenericTeamId(1);
 }
 
 void ATUH_Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -167,5 +169,9 @@ void ATUH_Player::Deploy()
 }
 
 void ATUH_Player::Interact()
+{
+}
+
+void ATUH_Player::ApplyDamage(float Damage)
 {
 }

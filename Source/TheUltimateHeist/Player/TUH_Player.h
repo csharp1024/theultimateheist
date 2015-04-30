@@ -47,6 +47,8 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	// End of APawn interface
 
+	virtual void ApplyDamage(float Damage) override;
+
 	virtual void OnFire() override;
 	void Deploy();
 	void Interact();

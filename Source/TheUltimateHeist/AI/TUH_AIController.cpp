@@ -110,3 +110,8 @@ void ATUH_AIController::Tick(float DeltaTime)
 		IAIPawn::Execute_SetSensedActorsValues(Pawn, SensedActorsValues);
 	}
 }
+
+void ATUH_AIController::Killed()
+{
+	PerceptionComponent->DestroyComponent();
+}

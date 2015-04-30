@@ -2,11 +2,12 @@
 
 #include "TheUltimateHeist.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "GenericTeamAgentInterface.h"
 #include "Ammo.h"
 
-void UAmmo::HandleShot(AActor * Owner, const FVector & Start, const FVector & Dir)
+void UAmmo::HandleShot(AActor * Owner, const FVector & Start, const FVector & Dir, float Accuracy, int32 Damage)
 {
-	for (auto i = 0U; i < NumShots; i++)
+	for (auto i = 0; i < NumShots; i++)
 	{
 		TArray<FHitResult> OutHits;
 		FCollisionQueryParams Params;
@@ -24,7 +25,7 @@ void UAmmo::HandleShot(AActor * Owner, const FVector & Start, const FVector & Di
 
 		auto InaccuracyCone = FMath::VRandCone(Dir, FMath::DegreesToRadians((1 - Accuracy) * 30));
 		auto End = Start + InaccuracyCone * 10000;
-		auto World = GetWorld();
+		auto World = Owner->GetWorld();
 		auto bHit = World->LineTraceMulti(
 			OutHits,
 			Start,
@@ -44,21 +45,34 @@ void UAmmo::HandleShot(AActor * Owner, const FVector & Start, const FVector & Di
 			UKismetSystemLibrary::DrawDebugLine(World, Start, End, FLinearColor::Red, Lifetime);
 		}
 
+		bool Stop = false;
 		for (auto Hit : OutHits)
 		{
 			UKismetSystemLibrary::DrawDebugPoint(World, Hit.ImpactPoint, 10.f, Hit.bBlockingHit ? FColor::Red : FColor::Green, Lifetime);
 
 			if (Hit.Actor.IsValid())
 			{
-				UE_LOG(TUHLog, Log, TEXT("Hit %s: %s [%s]"), *(Hit.Actor->GetName()), *Hit.Component->GetName(), *Hit.BoneName.ToString());
 				auto Pawn = Cast<APawn>(Hit.Actor.Get());
 				if (Pawn)
 				{
-					if (Hit.BoneName != NAME_None)
+					if (FGenericTeamId::GetAttitude(Pawn, Owner) != ETeamAttitude::Friendly)
 					{
-						UGameplayStatics::ApplyPointDamage(Pawn, Damage, -Dir, Hit, Owner->GetInstigatorController(), Owner, UDamageType::StaticClass());
+						UE_LOG(TUHLog, Log, TEXT("Hit %s: %s [%s]"), *(Hit.Actor->GetName()), *Hit.Component->GetName(), *Hit.BoneName.ToString());
+						if (Hit.BoneName != NAME_None)
+						{
+							DamageType.GetDefaultObject()->ApplyDamage(Pawn, Damage, Hit, Owner);
+							if (!bPenetrates)
+							{
+								Stop = true;
+							}
+						}
 					}
 				}
+			}
+
+			if (Stop)
+			{
+				return;
 			}
 		}
 	}

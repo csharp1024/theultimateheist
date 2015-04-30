@@ -2,22 +2,21 @@
 
 #pragma once
 
+#include "DamageTypes/WeaponDamageType.h"
 #include "Ammo.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class UAmmo : public UObject
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Features")
-		uint32 NumShots;
+		int32 NumShots;
 	UPROPERTY(EditDefaultsOnly, Category = "Features")
-		float Accuracy;
+		bool bPenetrates;
 	UPROPERTY(EditDefaultsOnly, Category = "Features")
-		uint32 bPenetrates : 1;
-	UPROPERTY(EditDefaultsOnly, Category = "Features")
-		uint32 Damage;
+		TSubclassOf<UWeaponDamageType> DamageType;
 
-	virtual void HandleShot(AActor * Owner, const FVector & Start, const FVector & Dir);
+	virtual void HandleShot(AActor * Owner, const FVector & Start, const FVector & Dir, float Accuracy, int32 Damage);
 };

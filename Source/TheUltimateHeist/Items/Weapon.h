@@ -57,7 +57,11 @@ public:
 		USoundCue * ShootSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Features")
-		UAmmo * AmmoType;
+		float Accuracy;
+	UPROPERTY(EditDefaultsOnly, Category = "Features")
+		int32 Damage;
+	UPROPERTY(EditDefaultsOnly, Category = "Features")
+		TSubclassOf<UAmmo> AmmoType;
 
 	void OnEquip();
 	void OnUnEquip();

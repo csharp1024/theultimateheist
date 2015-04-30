@@ -6,6 +6,8 @@
 #include "Perception/AIPerceptionSystem.h"
 #include "Perception/AISense_Sight.h"
 #include "GameFramework/InputSettings.h"
+#include "AI/TUH_AIController.h"
+#include "UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -43,8 +45,47 @@ ATheUltimateHeistCharacter::ATheUltimateHeistCharacter(const FObjectInitializer&
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P are set in the
 	// derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
-	static uint8 Id = 1;
+	static uint8 Id = 2;
 	TeamId = FGenericTeamId(Id++);
+}
+
+void ATheUltimateHeistCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ATheUltimateHeistCharacter, Health);
+}
+
+void ATheUltimateHeistCharacter::ApplyDamage(float Damage)
+{
+	if (HasAuthority())
+	{
+		Health -= Damage;
+
+		if (Health <= 0)
+		{
+			Die();
+		}
+	}
+}
+
+void ATheUltimateHeistCharacter::Die()
+{
+	if (HasAuthority())
+	{
+		MULTICAST_Die();
+
+		auto AIController = Cast<ATUH_AIController>(Controller);
+		if (AIController)
+		{
+			AIController->Killed();
+		}
+	}
+}
+
+void ATheUltimateHeistCharacter::MULTICAST_Die_Implementation()
+{
+	GetMesh()->PlayAnimation(DeathAnim, false);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -183,7 +224,7 @@ void ATheUltimateHeistCharacter::PossessedBy(AController * NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (Role == ROLE_Authority)
+	if (HasAuthority())
 	{
 		auto PerceptionSystem = UAIPerceptionSystem::GetCurrent(GetWorld());
 		PerceptionSystem->RegisterSource<UAISense_Sight>(*this);

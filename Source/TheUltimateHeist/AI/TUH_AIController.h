@@ -16,6 +16,9 @@ class THEULTIMATEHEIST_API ATUH_AIController : public AAIController
 public:
 	ATUH_AIController(const FObjectInitializer& ObjectInitializer);
 
+	UFUNCTION(BlueprintCallable, Category = "Killed")
+		void Killed();
+
 protected:
 	virtual void Tick(float DeltaTime) override;
 

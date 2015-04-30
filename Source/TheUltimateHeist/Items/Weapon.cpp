@@ -99,7 +99,8 @@ void AWeapon::Shoot()
 			auto EyePosition = MyPawn->GetEyePosition();
 			auto Forward = MyPawn->GetForwardVector();
 
-			AmmoType->HandleShot(Cast<AActor>(MyPawn.GetObject()), EyePosition, Forward);
+			auto Ammo = AmmoType.GetDefaultObject();
+			Ammo->HandleShot(Cast<AActor>(MyPawn.GetObject()), EyePosition, Forward, Accuracy, Damage);
 
 			FTimerHandle Handle;
 			GetWorldTimerManager().SetTimer(Handle, this, &AWeapon::ShootFinished, ShootAnim.Time);
