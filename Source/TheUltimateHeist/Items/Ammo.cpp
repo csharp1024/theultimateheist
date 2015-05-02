@@ -34,7 +34,7 @@ void UAmmo::HandleShot(AActor * Owner, const FVector & Start, const FVector & Di
 			ObjectParams
 			);
 		auto Lifetime = 20.f;
-		if (bHit && OutHits.Last().bBlockingHit)
+		/*if (bHit && OutHits.Last().bBlockingHit)
 		{
 			auto BlockingHitPoint = OutHits.Last().ImpactPoint;
 			UKismetSystemLibrary::DrawDebugLine(World, Start, BlockingHitPoint, FLinearColor::Red, Lifetime);
@@ -43,21 +43,28 @@ void UAmmo::HandleShot(AActor * Owner, const FVector & Start, const FVector & Di
 		else
 		{
 			UKismetSystemLibrary::DrawDebugLine(World, Start, End, FLinearColor::Red, Lifetime);
-		}
+		}*/
 
 		bool Stop = false;
 		for (auto Hit : OutHits)
 		{
-			UKismetSystemLibrary::DrawDebugPoint(World, Hit.ImpactPoint, 10.f, Hit.bBlockingHit ? FColor::Red : FColor::Green, Lifetime);
+			//UKismetSystemLibrary::DrawDebugPoint(World, Hit.ImpactPoint, 10.f, Hit.bBlockingHit ? FColor::Red : FColor::Green, Lifetime);
 
 			if (Hit.Actor.IsValid())
 			{
 				auto Pawn = Cast<APawn>(Hit.Actor.Get());
 				if (Pawn)
 				{
-					if (FGenericTeamId::GetAttitude(Pawn, Owner) != ETeamAttitude::Friendly)
+					if (Pawn->Tags.Contains(TEXT("Destructable")))
 					{
-						UE_LOG(TUHLog, Log, TEXT("Hit %s: %s [%s]"), *(Hit.Actor->GetName()), *Hit.Component->GetName(), *Hit.BoneName.ToString());
+						DamageType.GetDefaultObject()->ApplyDamage(Pawn, Damage, Hit, Owner);
+						if (!bPenetrates)
+						{
+							Stop = true;
+						}
+					}
+					else if (FGenericTeamId::GetAttitude(Pawn, Owner) != ETeamAttitude::Friendly)
+					{
 						if (Hit.BoneName != NAME_None)
 						{
 							DamageType.GetDefaultObject()->ApplyDamage(Pawn, Damage, Hit, Owner);

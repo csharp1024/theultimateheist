@@ -4,6 +4,8 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISense.h"
 #include "Perception/AISenseConfig.h"
+#include "BrainComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "AIPawn.h"
 #include "TUH_AIController.h"
 
@@ -114,4 +116,17 @@ void ATUH_AIController::Tick(float DeltaTime)
 void ATUH_AIController::Killed()
 {
 	PerceptionComponent->DestroyComponent();
+
+	StopMovement();
+	BrainComponent->StopLogic(TEXT("Actor Killed"));
+	
+	auto Pawn = GetPawn();
+	if (Pawn->GetClass()->ImplementsInterface(UAIPawn::StaticClass()))
+	{
+		auto Blackboard = FindComponentByClass<UBlackboardComponent>();
+		Blackboard->SetValueAsBool(TEXT("Alerted"), false);
+
+		IAIPawn::Execute_SetSensedActorsKeys(Pawn, TArray<AActor *>());
+		IAIPawn::Execute_SetSensedActorsValues(Pawn, TArray<float>());
+	}
 }

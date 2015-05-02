@@ -37,6 +37,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
 		float Concealment;
 
+	UPROPERTY()
+		bool Dead;
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
 	class UAnimationAsset * DeathAnim;
 

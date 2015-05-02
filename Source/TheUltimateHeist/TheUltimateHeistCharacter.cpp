@@ -71,8 +71,10 @@ void ATheUltimateHeistCharacter::ApplyDamage(float Damage)
 
 void ATheUltimateHeistCharacter::Die()
 {
-	if (HasAuthority())
+	if (HasAuthority() && !Dead)
 	{
+		Dead = true;
+
 		MULTICAST_Die();
 
 		auto AIController = Cast<ATUH_AIController>(Controller);
