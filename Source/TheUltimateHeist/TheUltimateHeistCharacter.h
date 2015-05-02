@@ -7,7 +7,7 @@
 class UInputComponent;
 
 UCLASS(config = Game)
-class ATheUltimateHeistCharacter : public ACharacter, public IGenericTeamAgentInterface
+class ATheUltimateHeistCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -42,15 +42,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
 	class UAnimationAsset * DeathAnim;
 
-	UFUNCTION(BlueprintCallable, Category = Team)
-		void SetTeamId(uint8 Team);
-
 	virtual float PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None) override;
-
-	/** IGenericTeamAgentInterface */
-	virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
-	virtual FGenericTeamId GetGenericTeamId() const override;
-	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 
 	UFUNCTION(BlueprintCallable, Category = Damage)
 		virtual void ApplyDamage(float Damage);
@@ -99,8 +91,6 @@ protected:
 	void EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
 	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
 	TouchData	TouchItem;
-
-	FGenericTeamId TeamId;
 
 protected:
 	// APawn interface

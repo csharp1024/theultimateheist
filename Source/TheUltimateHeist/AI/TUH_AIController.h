@@ -22,6 +22,8 @@ public:
 protected:
 	virtual void Tick(float DeltaTime) override;
 
+	bool IsKilled;
+
 	UFUNCTION(BlueprintCallable, Category = "AI Events")
 		void OnAIPerceptionUpdated(TArray<AActor*> Actors);
 };

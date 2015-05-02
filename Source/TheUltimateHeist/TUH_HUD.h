@@ -6,7 +6,7 @@
 #include "TUH_HUD.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class THEULTIMATEHEIST_API ATUH_HUD : public AHUD
@@ -14,8 +14,11 @@ class THEULTIMATEHEIST_API ATUH_HUD : public AHUD
 	GENERATED_BODY()
 
 protected:
-	UMaterialInstanceDynamic * DetectionMaterialDynamic;
-	UMaterialInstanceDynamic * InteractionMaterialDynamic;
+	// properties to prevent garbage collection from cleaning these up.
+	UPROPERTY()
+		UMaterialInstanceDynamic * DetectionMaterialDynamic;
+	UPROPERTY()
+		UMaterialInstanceDynamic * InteractionMaterialDynamic;
 
 	void DrawCrosshair();
 	void DrawDetectionScale();

@@ -16,6 +16,11 @@ ATUH_AIController::ATUH_AIController(const FObjectInitializer& ObjectInitializer
 
 void ATUH_AIController::OnAIPerceptionUpdated(TArray<AActor*> Actors)
 {
+	if (IsKilled)
+	{
+		return;
+	}
+
 	auto AIPerception = GetPerceptionComponent();
 	for (auto Actor : Actors)
 	{
@@ -82,6 +87,11 @@ void ATUH_AIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (IsKilled)
+	{
+		return;
+	}
+
 	auto Pawn = GetPawn();
 	if (Pawn->GetClass()->ImplementsInterface(UAIPawn::StaticClass()))
 	{
@@ -115,16 +125,28 @@ void ATUH_AIController::Tick(float DeltaTime)
 
 void ATUH_AIController::Killed()
 {
-	PerceptionComponent->DestroyComponent();
+	if (IsKilled)
+	{
+		return;
+	}
+
+	//PerceptionComponent->DestroyComponent();
+	IsKilled = true;
 
 	StopMovement();
-	BrainComponent->StopLogic(TEXT("Actor Killed"));
+	if (BrainComponent)
+	{
+		BrainComponent->StopLogic(TEXT("Actor Killed"));
+	}
 	
 	auto Pawn = GetPawn();
 	if (Pawn->GetClass()->ImplementsInterface(UAIPawn::StaticClass()))
 	{
 		auto Blackboard = FindComponentByClass<UBlackboardComponent>();
-		Blackboard->SetValueAsBool(TEXT("Alerted"), false);
+		if (Blackboard)
+		{
+			Blackboard->SetValueAsBool(TEXT("Alerted"), false);
+		}
 
 		IAIPawn::Execute_SetSensedActorsKeys(Pawn, TArray<AActor *>());
 		IAIPawn::Execute_SetSensedActorsValues(Pawn, TArray<float>());

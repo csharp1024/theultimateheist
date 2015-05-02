@@ -25,7 +25,7 @@ void ATUH_HUD::DrawHUD()
 
 	DrawCrosshair();
 	DrawDetectionScale();
-	//DrawInteractionScale();
+	DrawInteractionScale();
 }
 
 void ATUH_HUD::Tick(float DeltaTime)
@@ -58,6 +58,7 @@ void ATUH_HUD::Tick(float DeltaTime)
 	}
 
 	DetectionMaterialDynamic->SetScalarParameterValue(TEXT("DetectionAmount"), MaxDetection / 100);
+	InteractionMaterialDynamic->SetScalarParameterValue(TEXT("InteractionAmount"), 0);
 }
 
 void ATUH_HUD::DrawIndicators()
