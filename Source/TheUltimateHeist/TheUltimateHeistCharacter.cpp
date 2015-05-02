@@ -56,16 +56,22 @@ void ATheUltimateHeistCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	DOREPLIFETIME(ATheUltimateHeistCharacter, Health);
 }
 
+void ATheUltimateHeistCharacter::Tick(float DeltaTime)
+{
+	if (HasAuthority())
+	{
+		if (Health <= 0)
+		{
+			Die();
+		}
+	}
+}
+
 void ATheUltimateHeistCharacter::ApplyDamage(float Damage)
 {
 	if (HasAuthority())
 	{
 		Health -= Damage;
-
-		if (Health <= 0)
-		{
-			Die();
-		}
 	}
 }
 

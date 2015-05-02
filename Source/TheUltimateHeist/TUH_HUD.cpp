@@ -140,7 +140,7 @@ void ATUH_HUD::DrawIndicator(const AActor * Actor, const FLinearColor & Color, U
 	auto Pawn = GetOwningPawn();
 	if (Pawn)
 	{
-		auto HeadLocation = Actor->GetActorLocation() + FVector(0, 0, 100);
+		auto HeadLocation = Actor->GetActorLocation() + FVector(0, 0, Cast<APawn>(Actor)->BaseEyeHeight + 20);
 
 		auto ScreenPosition = Project(HeadLocation);
 		auto AdjustedScreenPosition = ScreenPosition - FVector(HalfX, HalfY, 0);

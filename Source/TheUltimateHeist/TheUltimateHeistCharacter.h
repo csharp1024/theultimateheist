@@ -37,7 +37,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
 		float Concealment;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = Stats)
 		bool Dead;
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
 	class UAnimationAsset * DeathAnim;
@@ -59,6 +59,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MULTICAST_Die();
 	void MULTICAST_Die_Implementation();
+
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 
