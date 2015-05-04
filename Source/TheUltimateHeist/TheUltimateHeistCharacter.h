@@ -5,6 +5,12 @@
 #include "TheUltimateHeistCharacter.generated.h"
 
 class UInputComponent;
+class USkeletalMeshComponent;
+class UCameraComponent;
+class UAnimationAsset;
+class UAnimMontage;
+class UDamageType;
+
 
 UCLASS(config = Game)
 class ATheUltimateHeistCharacter : public ACharacter
@@ -14,11 +20,11 @@ class ATheUltimateHeistCharacter : public ACharacter
 private:
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USkeletalMeshComponent* Mesh1P;
+		USkeletalMeshComponent* Mesh1P;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FirstPersonCameraComponent;
+		UCameraComponent* FirstPersonCameraComponent;
 
 public:
 	ATheUltimateHeistCharacter(const FObjectInitializer& ObjectInitializer);
@@ -39,18 +45,33 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = Stats)
 		bool Dead;
-	UPROPERTY(EditDefaultsOnly, Category = Animation)
-	class UAnimationAsset * DeathAnim;
 
-	virtual float PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None) override;
+	virtual float PlayAnimMontage(UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None) override;
+
+	virtual void ReceiveRadialDamage(
+		float DamageReceived,
+		const UDamageType* DamageType,
+		FVector Origin,
+		const struct FHitResult& HitInfo,
+		AController* InstigatedBy,
+		AActor* DamageCauser
+		) override;
+	virtual void ReceivePointDamage(
+		float Damage,
+		const UDamageType* DamageType,
+		FVector HitLocation,
+		FVector HitNormal,
+		UPrimitiveComponent* HitComponent,
+		FName BoneName,
+		FVector ShotFromDirection,
+		AController* InstigatedBy,
+		AActor* DamageCauser
+		) override;
 
 	UFUNCTION(BlueprintCallable, Category = Damage)
 		virtual void ApplyDamage(float Damage);
 
 	void Die();
-	UFUNCTION(NetMulticast, Reliable)
-		void MULTICAST_Die();
-	void MULTICAST_Die_Implementation();
 
 	virtual void Tick(float DeltaTime) override;
 
@@ -92,6 +113,9 @@ protected:
 	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
 	TouchData	TouchItem;
 
+	FVector LastDamageImpulse;
+	FName LastDamageBone;
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -107,9 +131,7 @@ protected:
 
 public:
 	/** Returns Mesh1P subobject **/
-	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+	FORCEINLINE USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
-
+	FORCEINLINE UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 };
-

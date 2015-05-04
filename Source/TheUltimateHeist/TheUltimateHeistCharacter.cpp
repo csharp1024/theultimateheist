@@ -44,6 +44,7 @@ ATheUltimateHeistCharacter::ATheUltimateHeistCharacter(const FObjectInitializer&
 
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P are set in the
 	// derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
 }
 
 void ATheUltimateHeistCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
@@ -51,6 +52,44 @@ void ATheUltimateHeistCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ATheUltimateHeistCharacter, Health);
+}
+
+void ATheUltimateHeistCharacter::ReceiveRadialDamage(
+	float DamageReceived,
+	const UDamageType* DamageType,
+	FVector Origin,
+	const struct FHitResult& HitInfo,
+	AController* InstigatedBy,
+	AActor* DamageCauser
+	)
+{
+	ApplyDamage(DamageReceived);
+	LastDamageBone = NAME_None;
+	auto Dir = GetActorLocation() - Origin;
+	Dir.Normalize();
+	LastDamageImpulse = Dir * DamageType->DamageImpulse;
+}
+
+void ATheUltimateHeistCharacter::ReceivePointDamage(
+	float Damage,
+	const UDamageType* DamageType,
+	FVector HitLocation,
+	FVector HitNormal,
+	UPrimitiveComponent* HitComponent,
+	FName BoneName,
+	FVector ShotFromDirection,
+	AController* InstigatedBy,
+	AActor* DamageCauser
+	)
+{
+	if (BoneName != NAME_None)
+	{
+		ApplyDamage(Damage);
+		LastDamageBone = BoneName;
+		auto Dir = ShotFromDirection;
+		Dir.Normalize();
+		LastDamageImpulse = Dir * DamageType->DamageImpulse;
+	}
 }
 
 void ATheUltimateHeistCharacter::Tick(float DeltaTime)
@@ -78,7 +117,12 @@ void ATheUltimateHeistCharacter::Die()
 	{
 		Dead = true;
 
-		MULTICAST_Die();
+		if (!LastDamageImpulse.Equals(FVector::ZeroVector))
+		{
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			GetMesh()->SetSimulatePhysics(true);
+			GetMesh()->AddImpulse(LastDamageImpulse * 100, LastDamageBone);
+		}
 
 		auto AIController = Cast<ATUH_AIController>(Controller);
 		if (AIController)
@@ -86,11 +130,6 @@ void ATheUltimateHeistCharacter::Die()
 			AIController->Killed();
 		}
 	}
-}
-
-void ATheUltimateHeistCharacter::MULTICAST_Die_Implementation()
-{
-	GetMesh()->PlayAnimation(DeathAnim, false);
 }
 
 //////////////////////////////////////////////////////////////////////////
