@@ -86,7 +86,7 @@ void ATheUltimateHeistCharacter::ReceivePointDamage(
 	{
 		ApplyDamage(Damage);
 		LastDamageBone = BoneName;
-		auto Dir = ShotFromDirection;
+		auto Dir = -ShotFromDirection;
 		Dir.Normalize();
 		LastDamageImpulse = Dir * DamageType->DamageImpulse;
 	}
@@ -121,7 +121,7 @@ void ATheUltimateHeistCharacter::Die()
 		{
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			GetMesh()->SetSimulatePhysics(true);
-			GetMesh()->AddImpulse(LastDamageImpulse * 100, LastDamageBone);
+			GetMesh()->AddImpulse(LastDamageImpulse * 10, LastDamageBone);
 		}
 
 		auto AIController = Cast<ATUH_AIController>(Controller);

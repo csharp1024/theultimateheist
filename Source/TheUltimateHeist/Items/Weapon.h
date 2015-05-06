@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "Ammo.h"
+#include "AmmoTypes/Ammo.h"
 #include "Weapon.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponShoot);
@@ -61,7 +61,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Features")
 		int32 Damage;
 	UPROPERTY(EditDefaultsOnly, Category = "Features")
-		TSubclassOf<UAmmo> AmmoType;
+		TSubclassOf<AAmmo> AmmoType;
 
 	void OnEquip();
 	void OnUnEquip();

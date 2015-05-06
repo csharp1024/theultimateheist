@@ -96,11 +96,18 @@ void AWeapon::Shoot()
 			Shooting = true;
 			MULTICAST_Shoot();
 
-			auto EyePosition = MyPawn->GetEyePosition();
+			auto Start = MyPawn->GetEyePosition();
 			auto Forward = MyPawn->GetForwardVector();
 
-			auto Ammo = AmmoType.GetDefaultObject();
-			Ammo->HandleShot(Cast<AActor>(MyPawn.GetObject()), EyePosition, Forward, Accuracy, Damage);
+			auto NumShots = AmmoType.GetDefaultObject()->NumShots;
+			for (auto i = 0; i < NumShots; i++)
+			{
+				auto InaccuracyCone = FMath::VRandCone(Forward, FMath::DegreesToRadians((1 - Accuracy) * 30));
+				auto End = Start + InaccuracyCone * 10000;
+
+				auto Ammo = GetWorld()->SpawnActor<AAmmo>(AmmoType, Start, Forward.Rotation());
+				Ammo->LaunchProjectile(Cast<AActor>(MyPawn.GetObject()), Damage, Start, End);
+			}
 
 			FTimerHandle Handle;
 			GetWorldTimerManager().SetTimer(Handle, this, &AWeapon::ShootFinished, ShootAnim.Time);
