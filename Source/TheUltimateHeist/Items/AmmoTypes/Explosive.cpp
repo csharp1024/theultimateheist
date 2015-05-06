@@ -44,7 +44,7 @@ void AExplosive::Tick(float DeltaTime)
 			IgnoreActors,
 			this,
 			Owner->GetInstigatorController(),
-			ECollisionChannel::ECC_WorldStatic
+			COLLISION_EXPLOSIVE
 			);
 		Destroy();
 	}
