@@ -48,26 +48,13 @@ public:
 
 	virtual float PlayAnimMontage(UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None) override;
 
-	virtual void ReceiveRadialDamage(
-		float DamageReceived,
-		const UDamageType* DamageType,
-		FVector Origin,
-		const struct FHitResult& HitInfo,
-		AController* InstigatedBy,
+	virtual float TakeDamage(
+		float DamageAmount,
+		FDamageEvent const& DamageEvent,
+		AController* EventInstigator,
 		AActor* DamageCauser
 		) override;
-	virtual void ReceivePointDamage(
-		float Damage,
-		const UDamageType* DamageType,
-		FVector HitLocation,
-		FVector HitNormal,
-		UPrimitiveComponent* HitComponent,
-		FName BoneName,
-		FVector ShotFromDirection,
-		AController* InstigatedBy,
-		AActor* DamageCauser
-		) override;
-
+	
 	UFUNCTION(BlueprintCallable, Category = Damage)
 		virtual void ApplyDamage(float Damage);
 

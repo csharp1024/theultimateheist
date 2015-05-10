@@ -54,42 +54,46 @@ void ATheUltimateHeistCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	DOREPLIFETIME(ATheUltimateHeistCharacter, Health);
 }
 
-void ATheUltimateHeistCharacter::ReceiveRadialDamage(
-	float DamageReceived,
-	const UDamageType* DamageType,
-	FVector Origin,
-	const struct FHitResult& HitInfo,
-	AController* InstigatedBy,
+float ATheUltimateHeistCharacter::TakeDamage(
+	float DamageAmount,
+	FDamageEvent const& DamageEvent,
+	AController* EventInstigator,
 	AActor* DamageCauser
 	)
 {
-	ApplyDamage(DamageReceived);
-	LastDamageBone = NAME_None;
-	auto Dir = GetActorLocation() - Origin;
-	Dir.Normalize();
-	LastDamageImpulse = Dir * DamageType->DamageImpulse;
-}
-
-void ATheUltimateHeistCharacter::ReceivePointDamage(
-	float Damage,
-	const UDamageType* DamageType,
-	FVector HitLocation,
-	FVector HitNormal,
-	UPrimitiveComponent* HitComponent,
-	FName BoneName,
-	FVector ShotFromDirection,
-	AController* InstigatedBy,
-	AActor* DamageCauser
-	)
-{
-	if (BoneName != NAME_None)
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
 	{
-		ApplyDamage(Damage);
-		LastDamageBone = BoneName;
-		auto Dir = -ShotFromDirection;
-		Dir.Normalize();
-		LastDamageImpulse = Dir * DamageType->DamageImpulse;
+		auto PointDamage = (FPointDamageEvent *)&DamageEvent;
+		auto BoneName = PointDamage->HitInfo.BoneName;
+		if (BoneName != NAME_None)
+		{
+			if (BoneName == TEXT("head"))
+			{
+				DamageAmount *= 2;
+			}
+
+			ApplyDamage(DamageAmount);
+			LastDamageBone = BoneName;
+			auto Dir = PointDamage->HitInfo.TraceEnd - PointDamage->HitInfo.TraceStart;
+			Dir.Normalize();
+			LastDamageImpulse = Dir * DamageAmount;
+		}
 	}
+	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+	{
+		auto RadialDamage = (FRadialDamageEvent *)&DamageEvent;
+		ApplyDamage(DamageAmount);
+		LastDamageBone = NAME_None;
+		auto Dir = GetActorLocation() - RadialDamage->Origin;
+		Dir.Normalize();
+		LastDamageImpulse = Dir * DamageAmount;
+	}
+	else
+	{
+		UE_LOG(TUHLog, Warning, TEXT("Damage type '%d' not implemented"), DamageEvent.GetTypeID());
+	}
+
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
 void ATheUltimateHeistCharacter::Tick(float DeltaTime)
@@ -121,7 +125,7 @@ void ATheUltimateHeistCharacter::Die()
 		{
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			GetMesh()->SetSimulatePhysics(true);
-			GetMesh()->AddImpulse(LastDamageImpulse * 10, LastDamageBone);
+			GetMesh()->AddImpulse(LastDamageImpulse * GetMesh()->GetMass(), LastDamageBone);
 		}
 
 		auto AIController = Cast<ATUH_AIController>(Controller);
