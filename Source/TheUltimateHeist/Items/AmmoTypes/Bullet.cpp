@@ -37,20 +37,13 @@ void ABullet::LaunchProjectile(AActor * Owner, int32 Damage, const FVector & Sta
 	{
 		if (Hit.Actor.IsValid())
 		{
-			auto Pawn = Cast<APawn>(Hit.Actor.Get());
-			if (Pawn)
+			auto MeshComponent = Cast<UMeshComponent>(Hit.Component.Get());
+			if (MeshComponent)
 			{
-				if (Pawn->Tags.Contains(TEXT("Destructable")))
+				auto Pawn = Cast<APawn>(Hit.Actor.Get());
+				if (Pawn)
 				{
-					UGameplayStatics::ApplyPointDamage(Pawn, Damage, -Direction, Hit, Owner->GetInstigatorController(), this, UDamageType::StaticClass());
-					if (!bPenetrates)
-					{
-						Stop = true;
-					}
-				}
-				else if (FGenericTeamId::GetAttitude(Pawn, Owner) != ETeamAttitude::Friendly)
-				{
-					if (Hit.BoneName != NAME_None)
+					if (Pawn->Tags.Contains(TEXT("Destructable")))
 					{
 						UGameplayStatics::ApplyPointDamage(Pawn, Damage, -Direction, Hit, Owner->GetInstigatorController(), this, UDamageType::StaticClass());
 						if (!bPenetrates)
@@ -58,17 +51,35 @@ void ABullet::LaunchProjectile(AActor * Owner, int32 Damage, const FVector & Sta
 							Stop = true;
 						}
 					}
+					else if (FGenericTeamId::GetAttitude(Pawn, Owner) != ETeamAttitude::Friendly)
+					{
+						if (Hit.BoneName != NAME_None)
+						{
+							UGameplayStatics::ApplyPointDamage(Pawn, Damage, -Direction, Hit, Owner->GetInstigatorController(), this, UDamageType::StaticClass());
+							if (!bPenetrates)
+							{
+								Stop = true;
+							}
+						}
+					}
+				}
+				else if (!bPenetrates)
+				{
+					Stop = true;
+				}
+
+				if (Stop)
+				{
+					// spawn decal
 				}
 			}
-			else if (!bPenetrates)
-			{
-				Stop = true;
-			}
+		}
 
-			if (Stop)
-			{
-				// spawn decal
-			}
+		if (Stop)
+		{
+			break;
 		}
 	}
+
+	Destroy();
 }

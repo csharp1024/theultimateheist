@@ -67,9 +67,11 @@ float ATheUltimateHeistCharacter::TakeDamage(
 		auto BoneName = PointDamage->HitInfo.BoneName;
 		if (BoneName != NAME_None)
 		{
+			UE_LOG(TUHLog, Log, TEXT("Taking %f damage"), DamageAmount);
 			if (BoneName == TEXT("head"))
 			{
 				DamageAmount *= 2;
+				UE_LOG(TUHLog, Log, TEXT("Boom headshot. Taking extra damage (%f)"), DamageAmount);
 			}
 
 			ApplyDamage(DamageAmount);
