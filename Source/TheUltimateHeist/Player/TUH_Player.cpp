@@ -2,6 +2,7 @@
 #include "TUH_Player.h"
 #include "../Items/Weapon.h"
 #include "UnrealNetwork.h"
+#include "../Interfaces/Interactable.h"
 
 ATUH_Player::ATUH_Player(const FObjectInitializer & ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -168,8 +169,90 @@ void ATUH_Player::Deploy()
 
 void ATUH_Player::Interact()
 {
+	if (HasAuthority())
+	{
+		auto StartPos = GetEyePosition();
+		auto EndPos = StartPos + GetForwardVector() * 200;
+		auto World = GetWorld();
+
+		FCollisionQueryParams TraceParams;
+		//TraceParams.bTraceAsyncScene = true;
+		//TraceParams.bReturnPhysicalMaterial = true;
+		TraceParams.AddIgnoredActor(this);
+
+		FCollisionObjectQueryParams CollisionParams;
+		CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldDynamic);
+		CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
+		CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_Vehicle);
+		CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_PhysicsBody);
+		CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_Destructible);
+
+		FHitResult OutHit;
+		const bool bHit = World->LineTraceSingle(OutHit, StartPos, EndPos, TraceParams, CollisionParams);
+		if (bHit)
+		{
+			// OutHit Contains Hit Data...
+			if (OutHit.Actor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+			{
+				if (IInteractable::Execute_CanInteract(OutHit.Actor.Get(), this))
+				{
+					IInteractable::Execute_Interact(OutHit.Actor.Get(), this);
+				}
+			}
+		}
+	}
+	else
+	{
+		SERVER_Interact();
+	}
+}
+
+bool ATUH_Player::SERVER_Interact_Validate()
+{
+	return true;
+}
+
+void ATUH_Player::SERVER_Interact_Implementation()
+{
+	Interact();
 }
 
 void ATUH_Player::ApplyDamage(float Damage)
 {
+}
+
+void ATUH_Player::Tick(float DeltaTime)
+{
+	auto World = GetWorld();
+
+	FCollisionQueryParams TraceParams;
+	//TraceParams.bReturnPhysicalMaterial = true;
+	//TraceParams.bTraceAsyncScene = true;
+	TraceParams.AddIgnoredActor(this);
+
+	FCollisionObjectQueryParams CollisionParams;
+	CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldDynamic);
+	CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
+	CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_Vehicle);
+	CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_PhysicsBody);
+	CollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_Destructible);
+
+	auto StartPos = GetEyePosition();
+	auto EndPos = StartPos + GetForwardVector() * 200;
+
+	if (Interactable.IsValid())
+	{
+		IInteractable::Execute_SetHighlight(Interactable.Get(), false);
+	}
+
+	FHitResult OutHit;
+	const bool bHit = World->LineTraceSingle(OutHit, StartPos, EndPos, TraceParams, CollisionParams);
+	if (bHit)
+	{
+		if (OutHit.Actor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+		{
+			Interactable = OutHit.Actor;
+			IInteractable::Execute_SetHighlight(Interactable.Get(), true);
+		}
+	}
 }

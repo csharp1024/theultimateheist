@@ -17,10 +17,12 @@ public:
 
 	virtual void PostInitializeComponents() override;
 
+	// IArmed interface
 	virtual FVector GetForwardVector() override;
 	virtual FVector GetEyePosition() override;
 	virtual USkeletalMeshComponent * GetSpecificPawnMesh(bool bFirstPerson) override;
 	virtual FName GetWeaponAttachPoint(bool bFirstPerson) override;
+	// End of IArmed interface
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
@@ -50,6 +52,17 @@ protected:
 	virtual void ApplyDamage(float Damage) override;
 
 	virtual void OnFire() override;
+
 	void Deploy();
+
 	void Interact();
+	UFUNCTION(Reliable, Server, WithValidation)
+		void SERVER_Interact();
+	bool SERVER_Interact_Validate();
+	void SERVER_Interact_Implementation();
+
+	virtual void Tick(float DeltaTime) override;
+
+private:
+	TWeakObjectPtr<AActor> Interactable;
 };

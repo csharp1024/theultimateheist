@@ -4,6 +4,8 @@
 #include "GameManagers/HighlightManager.h"
 #include "TUH_GameState.generated.h"
 
+class UObjective;
+
 UCLASS()
 class ATUH_GameState : public AGameState
 {
@@ -12,10 +14,15 @@ class ATUH_GameState : public AGameState
 public:
 	ATUH_GameState(const FObjectInitializer & ObjectInitializer);
 
-	virtual void BeginPlay() override;
-
 	UPROPERTY(BlueprintReadOnly, Category = "GameState")
 		AHighlightManager * HighlightManager;
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentObjective, Category = "GameState | Objective")
+		UObjective * CurrentObjective;
+
+	UFUNCTION()
+		void OnRep_CurrentObjective();
+
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 };

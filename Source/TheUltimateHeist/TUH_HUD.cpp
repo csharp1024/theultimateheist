@@ -7,6 +7,7 @@
 #include "AI/AIPawn.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "TUH_HUD.h"
+#include "Player/TUH_Player.h"
 
 void ATUH_HUD::PostInitializeComponents()
 {
@@ -31,6 +32,7 @@ void ATUH_HUD::DrawHUD()
 void ATUH_HUD::Tick(float DeltaTime)
 {
 	float MaxDetection = 0;
+	float InteractionAmount = 0;
 
 	auto Pawn = GetOwningPawn();
 	if (Pawn)
@@ -54,6 +56,11 @@ void ATUH_HUD::Tick(float DeltaTime)
 					}
 				}
 			}
+		}
+
+		auto Character = Cast<ATUH_Player>(Pawn);
+		if (Character)
+		{
 		}
 	}
 
