@@ -8,6 +8,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "TUH_HUD.h"
 #include "Player/TUH_Player.h"
+#include "Game/TUH_GameState.h"
+#include "GameManagers/Objectives/Objective.h"
 
 void ATUH_HUD::PostInitializeComponents()
 {
@@ -27,6 +29,21 @@ void ATUH_HUD::DrawHUD()
 	DrawCrosshair();
 	DrawDetectionScale();
 	DrawInteractionScale();
+
+	DrawObjectives();
+}
+
+void ATUH_HUD::DrawObjectives()
+{
+	auto GameState = GetWorld()->GetGameState<ATUH_GameState>();
+	if (GameState)
+	{
+		auto Objective = GameState->CurrentObjective;
+		if (Objective)
+		{
+			DrawText(Objective->Name, FLinearColor::White, 10, 10);
+		}
+	}
 }
 
 void ATUH_HUD::Tick(float DeltaTime)
@@ -77,21 +94,29 @@ void ATUH_HUD::DrawIndicators()
 		UGameplayStatics::GetAllActorsWithInterface(Pawn, UAIPawn::StaticClass(), Actors);
 		for (auto Actor : Actors)
 		{
-			auto SensedKeys = IAIPawn::Execute_GetSensedActorsKeys(Actor);
-			auto SensedValues = IAIPawn::Execute_GetSensedActorsValues(Actor);
+			auto ActorPawn = Cast<APawn>(Actor);
+			if (ActorPawn)
+			{
+				auto SensedKeys = IAIPawn::Execute_GetSensedActorsKeys(Actor);
+				auto SensedValues = IAIPawn::Execute_GetSensedActorsValues(Actor);
 
-			auto Blackboard = Actor->GetInstigatorController()->FindComponentByClass<UBlackboardComponent>();
-			if (Blackboard && Blackboard->GetValueAsBool(TEXT("Alerted")))
-			{
-				DrawIndicator(Actor, DetectedColor, ExclamationIcon);
-			}
-			else if (Blackboard && Blackboard->GetValueAsBool(TEXT("Phoning")))
-			{
-				DrawIndicator(Actor, DetectedColor, PhoneIcon);
-			}
-			else if (SensedKeys.Num() > 0)
-			{
-				DrawIndicator(Actor, InterestColor, QuestionIcon);
+				auto Controller = ActorPawn->GetController();
+				if (Controller)
+				{
+					auto Blackboard = Controller->FindComponentByClass<UBlackboardComponent>();
+					if (Blackboard && Blackboard->GetValueAsBool(TEXT("Alerted")))
+					{
+						DrawIndicator(Actor, DetectedColor, ExclamationIcon);
+					}
+					else if (Blackboard && Blackboard->GetValueAsBool(TEXT("Phoning")))
+					{
+						DrawIndicator(Actor, DetectedColor, PhoneIcon);
+					}
+					else if (SensedKeys.Num() > 0)
+					{
+						DrawIndicator(Actor, InterestColor, QuestionIcon);
+					}
+				}
 			}
 		}
 	}

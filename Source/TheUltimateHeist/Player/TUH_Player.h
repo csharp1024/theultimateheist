@@ -6,6 +6,7 @@
 #include "TUH_Player.generated.h"
 
 class AWeapon;
+class AInteractable;
 
 UCLASS()
 class ATUH_Player : public ATheUltimateHeistCharacter, public IArmed
@@ -64,5 +65,5 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	TWeakObjectPtr<AActor> Interactable;
+	AInteractable * Interactable;
 };

@@ -24,6 +24,7 @@ protected:
 	void DrawDetectionScale();
 	void DrawInteractionScale();
 	void DrawIndicators();
+	void DrawObjectives();
 
 	void DrawIndicator(const AActor * Actor, const FLinearColor & Color, UTexture2D * Icon);
 

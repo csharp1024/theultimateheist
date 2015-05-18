@@ -2,7 +2,7 @@
 #include "TUH_Player.h"
 #include "../Items/Weapon.h"
 #include "UnrealNetwork.h"
-#include "../Interfaces/Interactable.h"
+#include "../Items/Interactable.h"
 
 ATUH_Player::ATUH_Player(const FObjectInitializer & ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -192,11 +192,12 @@ void ATUH_Player::Interact()
 		if (bHit)
 		{
 			// OutHit Contains Hit Data...
-			if (OutHit.Actor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+			auto Interactable = Cast<AInteractable>(OutHit.Actor.Get());
+			if (Interactable)
 			{
-				if (IInteractable::Execute_CanInteract(OutHit.Actor.Get(), this))
+				if (Interactable->CanInteract(this))
 				{
-					IInteractable::Execute_Interact(OutHit.Actor.Get(), this);
+					Interactable->Interact(this);
 				}
 			}
 		}
@@ -240,19 +241,19 @@ void ATUH_Player::Tick(float DeltaTime)
 	auto StartPos = GetEyePosition();
 	auto EndPos = StartPos + GetForwardVector() * 200;
 
-	if (Interactable.IsValid())
+	if (Interactable)
 	{
-		IInteractable::Execute_SetHighlight(Interactable.Get(), false);
+		Interactable->SetHighlight(false);
 	}
 
 	FHitResult OutHit;
 	const bool bHit = World->LineTraceSingle(OutHit, StartPos, EndPos, TraceParams, CollisionParams);
 	if (bHit)
 	{
-		if (OutHit.Actor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+		Interactable = Cast<AInteractable>(OutHit.Actor.Get());
+		if (Interactable)
 		{
-			Interactable = OutHit.Actor;
-			IInteractable::Execute_SetHighlight(Interactable.Get(), true);
+			Interactable->SetHighlight(true);
 		}
 	}
 }

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TheUltimateHeist.h"
-#include "../TUH_GameState.h"
+#include "../Game/TUH_GameState.h"
 #include "UnrealNetwork.h"
 #include "AI/AIPawn.h"
 #include "TUH_PlayerController.h"
